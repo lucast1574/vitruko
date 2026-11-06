@@ -14,6 +14,7 @@ import {
   ScanLine,
 } from "lucide-react";
 import { Logo, Notice } from "./ui";
+import Avatar from "./Avatar";
 import { useData } from "./useData";
 import { Overview, Usage } from "./pages/Usage";
 import Keys from "./pages/Keys";
@@ -61,7 +62,7 @@ export default function Dashboard() {
           </button>
         </div>
         <div className="workspace">
-          <span className="avatar">{user.name[0].toUpperCase()}</span>
+          <Avatar name={user.name} src={user.avatarUrl} />
           <div>
             <strong>{user.name}</strong>
             <span>
@@ -116,7 +117,7 @@ export default function Dashboard() {
           </span>
           <a href="/app/profile" className="account-shortcut">
             <span>{user.name}</span>
-            <span className="avatar small">{user.name[0].toUpperCase()}</span>
+            <Avatar name={user.name} src={user.avatarUrl} small />
           </a>
         </header>
         <main className="app-sheet">

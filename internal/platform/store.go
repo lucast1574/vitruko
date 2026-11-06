@@ -106,6 +106,7 @@ func New(ctx context.Context, c Config, geo httpHandler) (*Platform, error) {
 }
 
 type User struct {
+	AvatarURL          string         `json:"avatarUrl,omitempty"`
 	ID                 string         `json:"id"`
 	Email              string         `json:"email"`
 	Name               string         `json:"name"`
@@ -120,12 +121,12 @@ type User struct {
 	CreatedAt          time.Time      `json:"createdAt"`
 }
 
-const userColumns = "id,email,name,role,disabled,plan_id,customer_id,subscription_id,subscription_status,billing_start,billing_end,created_at"
+const userColumns = "id,email,name,role,disabled,plan_id,customer_id,subscription_id,subscription_status,billing_start,billing_end,created_at,avatar_url"
 
 type scanner interface{ Scan(...any) error }
 
 func scanUser(row scanner) (u User, err error) {
-	err = row.Scan(&u.ID, &u.Email, &u.Name, &u.Role, &u.Disabled, &u.PlanID, &u.CustomerID, &u.SubscriptionID, &u.SubscriptionStatus, &u.BillingStart, &u.BillingEnd, &u.CreatedAt)
+	err = row.Scan(&u.ID, &u.Email, &u.Name, &u.Role, &u.Disabled, &u.PlanID, &u.CustomerID, &u.SubscriptionID, &u.SubscriptionStatus, &u.BillingStart, &u.BillingEnd, &u.CreatedAt, &u.AvatarURL)
 	return
 }
 func (p *Platform) user(ctx context.Context, id string) (User, error) {

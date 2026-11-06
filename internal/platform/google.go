@@ -24,6 +24,7 @@ type googleClaims struct {
 	Email    string `json:"email"`
 	Verified bool   `json:"email_verified"`
 	Name     string `json:"name"`
+	Picture  string `json:"picture"`
 	AuthTime *int64 `json:"auth_time"`
 	Firebase struct {
 		Provider string `json:"sign_in_provider"`
@@ -206,6 +207,10 @@ func (p *Platform) linkGoogle(ctx context.Context, identity googleClaims) (User,
 		if _, err = tx.ExecContext(ctx, "DELETE FROM reset_tokens WHERE user_id=$1", id); err != nil {
 			return User{}, err
 		}
+	}
+	u.AvatarURL = googlePicture(identity.Picture)
+	if _, err = tx.ExecContext(ctx, "UPDATE users SET avatar_url=$1 WHERE id=$2", u.AvatarURL, id); err != nil {
+		return User{}, err
 	}
 	if err = tx.Commit(); err != nil {
 		return User{}, err

@@ -857,8 +857,11 @@ form > .button {
   width: 100%;
   justify-self: center;
   padding-top: 48px;
+  text-align: center;
 }
 .auth-form-wrap h1 {
+  margin-left: auto;
+  margin-right: auto;
   font-size: 40px;
   margin-bottom: 20px;
   line-height: 1.05;
@@ -867,6 +870,26 @@ form > .button {
   color: var(--muted);
   font-size: 15px;
   margin-bottom: 32px;
+}
+.google-entry {
+  margin: 24px 0;
+}
+.google-entry > .button {
+  width: 100%;
+  gap: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--ink);
+}
+.google-entry p {
+  text-align: center;
+  font-size: 13px;
+  color: var(--muted);
+  margin: 20px 0;
+}
+.auth-form-wrap form,
+.auth-form-wrap .notice {
+  text-align: left;
 }
 .auth-form-wrap form > .button {
   width: 100%;
