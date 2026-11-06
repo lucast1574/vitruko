@@ -2,25 +2,26 @@ import React from "react";
 import { gsap } from "gsap";
 import "./brand-arrival.css";
 
-const sessionKey = "vitruko-brand-arrival-v1";
+const sessionKey = "vitruko-brand-arrival-v2";
 
 export default function BrandArrival() {
   return (
     <div className="brand-arrival" aria-hidden="true">
       <div className="arrival-identity">
         <svg className="arrival-symbol" viewBox="0 0 80 80" fill="none">
-          <g transform="translate(8 6)">
+          <g transform="translate(-1 0) rotate(-7 41 40)">
             <path
               className="arrival-pin-fill"
-              d="M8 3h28l22 22v34H8Z"
+              fillRule="evenodd"
+              d="M20 8h22.7a6 6 0 0 1 4.24 1.76l18.3 18.3A6 6 0 0 1 67 32.3V67a5 5 0 0 1-5 5H20a5 5 0 0 1-5-5V13a5 5 0 0 1 5-5ZM54.5 24a3.5 3.5 0 1 0-7 0a3.5 3.5 0 1 0 7 0Z"
             />
             <path
               className="arrival-pin-line"
-              d="M8 3h28l22 22v34H8Z"
+              d="M20 8h22.7a6 6 0 0 1 4.24 1.76l18.3 18.3A6 6 0 0 1 67 32.3V67a5 5 0 0 1-5 5H20a5 5 0 0 1-5-5V13a5 5 0 0 1 5-5Z"
             />
             <path
               className="arrival-letter"
-              d="m19 27 12 20 16-30"
+              d="m27 39 11 16 15-21"
             />
           </g>
         </svg>
