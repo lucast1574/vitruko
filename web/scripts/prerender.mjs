@@ -17,9 +17,14 @@ function graph(path, page) {
     "@id": siteOrigin + "/#organization",
     name: "Vitruko",
     url: siteOrigin + "/",
+    description: pages["/"].description,
     logo: {
       "@type": "ImageObject",
-      url: siteOrigin + "/icon-512.png",
+      "@id": siteOrigin + "/#logo",
+      url: siteOrigin + "/icon-512.png?v=tag-2",
+      contentUrl: siteOrigin + "/icon-512.png?v=tag-2",
+      encodingFormat: "image/png",
+      caption: "Logo de Vitruko",
       width: 512,
       height: 512,
     },
@@ -50,19 +55,25 @@ function graph(path, page) {
     },
   };
   if (path === "/") webPage.mainEntity = { "@id": siteOrigin + "/#api" };
-  else webPage.breadcrumb = { "@id": url + "#breadcrumbs" };
+  else {
+    webPage.breadcrumb = { "@id": url + "#breadcrumbs" };
+    if (path !== "/legal")
+      webPage.about = { "@id": siteOrigin + "/#api" };
+  }
   const data = [brand, website, webPage];
-  if (path === "/")
+  if (path !== "/legal")
     data.push({
       "@type": "Service",
       "@id": siteOrigin + "/#api",
       name: "Vitruko API",
       serviceType: "API de extracción de fichas de producto",
       url: siteOrigin + "/",
-      description: page.description,
+      description: pages["/"].description,
+      mainEntityOfPage: { "@id": siteOrigin + "/#webpage" },
+      image: { "@id": brand.logo["@id"] },
       provider: { "@id": brand["@id"] },
     });
-  else
+  if (path !== "/")
     data.push({
       "@type": "BreadcrumbList",
       "@id": url + "#breadcrumbs",
