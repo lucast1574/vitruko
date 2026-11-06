@@ -8,7 +8,7 @@ export function Logo({ large = false }) {
       href="/"
       aria-label="Vitruko, inicio"
     >
-      <img src="/logo.svg" alt="" width="36" height="36" />
+      <img src="/logo.svg?v=tag-2" alt="" width="36" height="36" />
       <span>
         vitruko<span className="brand-dot">.</span>
       </span>

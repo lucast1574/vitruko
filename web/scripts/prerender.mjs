@@ -44,7 +44,7 @@ function graph(path, page) {
     publisher: { "@id": brand["@id"] },
     primaryImageOfPage: {
       "@type": "ImageObject",
-      url: siteOrigin + "/og-vitruko.png",
+      url: siteOrigin + "/og-vitruko.png?v=tag-2",
       width: 1200,
       height: 630,
     },
@@ -104,9 +104,9 @@ function document(page, path, html, indexable = true) {
 ${indexable ? `<link rel="canonical" href="${canonical}">` : ""}
 <meta property="og:type" content="website"><meta property="og:locale" content="es_ES"><meta property="og:site_name" content="Vitruko">
 <meta property="og:title" content="${escape(page.title)}"><meta property="og:description" content="${escape(page.description)}"><meta property="og:url" content="${canonical}">
-<meta property="og:image" content="${siteOrigin}/og-vitruko.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="Vitruko: API de productos y vistas previas">
-<meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="${escape(page.title)}"><meta name="twitter:description" content="${escape(page.description)}"><meta name="twitter:image" content="${siteOrigin}/og-vitruko.png"><meta name="twitter:image:alt" content="Vitruko: API de productos y vistas previas">
-<link rel="icon" href="/favicon-96.png" sizes="96x96" type="image/png"><link rel="icon" href="/logo.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta property="og:image" content="${siteOrigin}/og-vitruko.png?v=tag-2"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="Vitruko: API de productos y vistas previas">
+<meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="${escape(page.title)}"><meta name="twitter:description" content="${escape(page.description)}"><meta name="twitter:image" content="${siteOrigin}/og-vitruko.png?v=tag-2"><meta name="twitter:image:alt" content="Vitruko: API de productos y vistas previas">
+<link rel="icon" href="/favicon-96.png?v=tag-2" sizes="96x96" type="image/png"><link rel="icon" href="/logo.svg?v=tag-2" type="image/svg+xml"><link rel="apple-touch-icon" href="/apple-touch-icon.png?v=tag-2">
 ${indexable ? `<script type="application/ld+json">${JSON.stringify(graph(path, page)).replaceAll("<", "\\u003c")}</script>` : ""}`;
   return template
     .replace(/<title>[\s\S]*?<\/title>/, " ")
