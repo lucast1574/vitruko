@@ -54,7 +54,11 @@ func TestStorefrontAPIsMatchExactProductAndValidateImage(t *testing.T) {
 			if r.URL.Path != c.path || r.URL.Host != "shop.example" {
 				t.Fatal(r.URL)
 			}
-			return &http.Response{StatusCode: 200, Header: http.Header{"Content-Type": []string{"application/json"}}, Body: io.NopCloser(strings.NewReader(c.body))}, nil
+			mime := "application/json"
+			if strings.HasSuffix(r.URL.Path, ".js") {
+				mime = "text/javascript; charset=utf-8"
+			}
+			return &http.Response{StatusCode: 200, Header: http.Header{"Content-Type": []string{mime}}, Body: io.NopCloser(strings.NewReader(c.body))}, nil
 		})}
 		u, _ := url.Parse(c.page)
 		m := storefront(context.Background(), client, u, []byte(c.marker))

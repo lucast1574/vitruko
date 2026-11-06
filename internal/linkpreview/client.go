@@ -42,7 +42,7 @@ func ValidURL(raw string) bool {
 
 // Resolve and connect to the checked address, including on every redirect. No environment proxy.
 func Client() *http.Client {
-	transport := &http.Transport{TLSHandshakeTimeout: 5 * time.Second, ResponseHeaderTimeout: 6 * time.Second, MaxResponseHeaderBytes: 32 << 10}
+	transport := &http.Transport{ForceAttemptHTTP2: true, TLSHandshakeTimeout: 5 * time.Second, ResponseHeaderTimeout: 6 * time.Second, MaxResponseHeaderBytes: 32 << 10}
 	transport.DialContext = func(ctx context.Context, network, address string) (net.Conn, error) {
 		host, port, err := net.SplitHostPort(address)
 		if err != nil || port != "443" {

@@ -65,7 +65,8 @@ func readStoreJSON(ctx context.Context, client *http.Client, raw string, dst any
 		return false
 	}
 	defer res.Body.Close()
-	if (res.StatusCode != 200 && res.StatusCode != 206) || !strings.Contains(res.Header.Get("Content-Type"), "json") {
+	mime := strings.ToLower(strings.Split(res.Header.Get("Content-Type"), ";")[0])
+	if (res.StatusCode != 200 && res.StatusCode != 206) || (!strings.Contains(mime, "json") && mime != "text/javascript" && mime != "application/javascript") {
 		return false
 	}
 	return json.NewDecoder(io.LimitReader(res.Body, 2<<20)).Decode(dst) == nil
