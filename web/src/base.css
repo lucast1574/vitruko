@@ -1,7 +1,31 @@
-@font-face{font-family:Onest;src:url(/fonts/onest-400.woff2) format("woff2");font-style:normal;font-weight:400;font-display:swap}
-@font-face{font-family:Onest;src:url(/fonts/onest-500.woff2) format("woff2");font-style:normal;font-weight:500;font-display:swap}
-@font-face{font-family:Onest;src:url(/fonts/onest-700.woff2) format("woff2");font-style:normal;font-weight:700;font-display:swap}
-@font-face{font-family:Unbounded;src:url(/fonts/unbounded.woff2) format("woff2");font-style:normal;font-weight:800;font-display:swap}
+@font-face {
+  font-family: Onest;
+  src: url(/fonts/onest-400.woff2) format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: Onest;
+  src: url(/fonts/onest-500.woff2) format("woff2");
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: Onest;
+  src: url(/fonts/onest-700.woff2) format("woff2");
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: Unbounded;
+  src: url(/fonts/unbounded.woff2) format("woff2");
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+}
 @font-face {
   font-family: "General Sans";
   src: url("/fonts/general-sans-0.woff2") format("woff2");
