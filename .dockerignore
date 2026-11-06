@@ -1,0 +1,9 @@
+.git
+.env*
+*.exe
+*.log
+coverage.out
+web/node_modules
+web/dist
+.taste-skill
+.interface-design
