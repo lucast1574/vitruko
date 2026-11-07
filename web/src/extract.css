@@ -260,3 +260,31 @@
 .product-quality dt {
   font-weight: 500;
 }
+
+.extraction-result {
+  align-items: start;
+}
+.extracted-json pre {
+  max-height: 620px;
+  overflow: auto;
+}
+.product-description.is-condensed {
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.product-description-toggle {
+  background: none;
+  border: 0;
+  padding: 4px 0;
+  margin: 0 0 18px;
+  font: inherit;
+  font-size: 13px;
+  color: var(--accent);
+  text-decoration: underline;
+  display: block;
+}
+.product-description-toggle:focus-visible {
+  background: var(--mint);
+}

@@ -43,7 +43,8 @@ export default function ProductPreview({ result }) {
       ? [result.imageUrl]
       : [];
   const [selected, setSelected] = useState(0),
-    [failed, setFailed] = useState(false);
+    [failed, setFailed] = useState(false),
+    [expanded, setExpanded] = useState(false);
   const quality = result.quality;
   return (
     <article className="extracted-product">
@@ -100,7 +101,23 @@ export default function ProductPreview({ result }) {
           {stock[result.availability] || stock.unknown}
         </span>
       </div>
-      <p>{result.description || "La tienda no publicó una descripción."}</p>
+      <p
+        className={
+          expanded ? "product-description" : "product-description is-condensed"
+        }
+      >
+        {result.description || "La tienda no publicó una descripción."}
+      </p>
+      {result.description?.length > 260 && (
+        <button
+          type="button"
+          className="product-description-toggle"
+          aria-expanded={expanded}
+          onClick={() => setExpanded(!expanded)}
+        >
+          {expanded ? "Ver menos" : "Ver descripción completa"}
+        </button>
+      )}
       <a
         className="text-link"
         href={result.url}

@@ -149,7 +149,8 @@ export default function Inspector({ embedded = false }) {
               {cache === "HIT"
                 ? "Respuesta desde caché de hasta cinco minutos."
                 : "Respuesta consultada en la tienda."}{" "}
-              Esta ejecución cuenta una petición.
+              Esta ejecución cuenta una petición.{" "}
+              {duration !== null && `Tiempo de respuesta: ${duration} ms.`}
             </p>
           </div>
         </div>
