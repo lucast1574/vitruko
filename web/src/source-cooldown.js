@@ -7,5 +7,5 @@ export function sourceRetryDeadline(header, now = Date.now()) {
   return Number.isFinite(date) && date > now ? Math.min(date, now + 86400000) : now + 60000;
 }
 export function sourceHost(raw) {
-  try { return new URL(raw).hostname; } catch { return ""; }
+  try { return new URL(raw).hostname.replace(/\.$/, ""); } catch { return ""; }
 }

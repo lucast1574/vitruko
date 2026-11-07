@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/http"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 )
@@ -104,7 +105,8 @@ func (t *politeTransport) CloseIdleConnections() {
 }
 
 func (t *politeTransport) RoundTrip(req *http.Request) (*http.Response, error) {
-	release, err := t.scheduler.acquire(req.Context(), req.URL.Hostname())
+	host := strings.ToLower(strings.TrimSuffix(req.URL.Hostname(), "."))
+	release, err := t.scheduler.acquire(req.Context(), host)
 	if err != nil {
 		return nil, err
 	}
@@ -113,7 +115,7 @@ func (t *politeTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 	if err == nil && res.StatusCode == http.StatusTooManyRequests {
 		limited := sourceLimit(res.Header.Get("Retry-After"))
 		t.scheduler.mu.Lock()
-		g := t.scheduler.hosts[req.URL.Hostname()]
+		g := t.scheduler.hosts[host]
 		if limited.Until.After(g.blocked) {
 			g.blocked = limited.Until
 		}

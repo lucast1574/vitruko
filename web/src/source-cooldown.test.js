@@ -12,4 +12,5 @@ test("Cooldown identity is per store, independent of its product path",()=>{
  assert.equal(sourceHost("https://shop.example/es/products/cup?variant=42"),"shop.example");
  assert.notEqual(sourceHost("https://other.example/p"),"shop.example");
  assert.equal(sourceHost("broken"),"");
+ assert.equal(sourceHost("https://SHOP.EXAMPLE./products/cup"),"shop.example");
 });

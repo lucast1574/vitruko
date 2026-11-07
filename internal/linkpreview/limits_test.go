@@ -22,8 +22,8 @@ func TestStoreLimitStopsFallbackAndFurtherRequestsToSameHost(t *testing.T) {
 		}
 		return &http.Response{StatusCode: 429, Header: http.Header{"Retry-After": {"60"}}, Body: io.NopCloser(strings.NewReader("limited"))}, nil
 	})}}
-	for _, path := range []string{"cup", "other"} {
-		_, err := fetchWithClient(context.Background(), "https://shop.example/products/"+path, client)
+	for _, raw := range []string{"https://shop.example/products/cup", "https://SHOP.EXAMPLE./products/other"} {
+		_, err := fetchWithClient(context.Background(), raw, client)
 		var limited *SourceRateLimit
 		if !errors.As(err, &limited) || limited.RetryAfter() < 59 {
 			t.Fatal("lost upstream deadline", err)
