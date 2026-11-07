@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { ArrowRight, ArrowUpRight, Copy, Check } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Check } from "lucide-react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Logo } from "./ui";
@@ -28,8 +28,6 @@ const examples = [
     url: "https://tienda.example/products/bolso",
   },
 ];
-// The showcase is an illustrative JSON example, not a live store response.
-const showcase = examples.map((item) => ({...item, images:[`https://tienda.example${item.imageUrl}`], brand:"Vitruko studio", price:null, availability:"unknown", quality:{productDetected:true,missingFields:["price","availability"],fieldSources:{title:"json_ld",description:"json_ld",images:"json_ld",brand:"json_ld"},warnings:[],extractedAt:"2026-11-07T12:00:00Z"}}));
 const faqs = [
   [
     "¿Funciona con cualquier tienda?",
@@ -54,8 +52,7 @@ const faqs = [
 ];
 export default function Landing() {
   const root = useRef(null),
-    [selected, setSelected] = useState(0),
-    [copied, setCopied] = useState(false);
+    [selected, setSelected] = useState(0);
   const { data } = useData("/console/plans");
   const item = examples[selected];
   useEffect(() => {
@@ -132,14 +129,6 @@ export default function Landing() {
     });
     return () => media.revert();
   }, []);
-  async function copy() {
-    try {
-      await navigator.clipboard.writeText(JSON.stringify({...showcase[selected],imageUrl:showcase[selected].images[0]}, null, 2));
-      setCopied(true);
-    } catch {
-      setCopied(false);
-    }
-  }
   return (
     <div className="v-landing" ref={root}>
       <BrandArrival />
@@ -210,7 +199,6 @@ export default function Landing() {
                         (selected + direction + examples.length) %
                         examples.length;
                       setSelected(next);
-                      setCopied(false);
                       e.currentTarget.querySelectorAll("button")[next].focus();
                     }
                   }}
@@ -223,8 +211,7 @@ export default function Landing() {
                       aria-selected={selected === i}
                       onClick={() => {
                         setSelected(i);
-                        setCopied(false);
-                      }}
+                        }}
                     >
                       {["Taza", "Lámpara", "Bolso"][i]}
                     </button>
@@ -232,23 +219,23 @@ export default function Landing() {
                 </div>
               </div>
             </div>
-            <div className="data-sheet">
+            <div className="data-sheet" aria-live="polite">
               <div className="sheet-top">
-                <span>La misma ficha. Lista para integrar.</span>
-                <button
-                  onClick={copy}
-                  aria-label={
-                    copied ? "JSON copiado" : "Copiar JSON de ejemplo"
-                  }
-                >
-                  {copied ? <Check size={18} /> : <Copy size={18} />}
-                </button>
+                <span>De enlace a ficha</span>
+                <Check size={18} aria-hidden="true" />
               </div>
-              <pre>{JSON.stringify({...showcase[selected],imageUrl:showcase[selected].images[0]}, null, 2)}</pre>
-              <div className="sheet-bottom">
-                <span>POST /v1/extract</span>
-                <span>JSON de ejemplo</span>
+              <div className="sheet-product">
+                <span className="sheet-brand">Vitruko studio</span>
+                <h2>{item.title}</h2>
+                <p>{item.description}</p>
               </div>
+              <dl className="sheet-fields">
+                <div><dt>Imagen del producto</dt><dd>Lista para mostrar</dd></div>
+                <div><dt>Enlace de origen</dt><dd>tienda.example</dd></div>
+              </dl>
+              <p className="sheet-context">También puedes obtener galería, precio y disponibilidad cuando la tienda los publica.</p>
+              <a className="sheet-docs" href="/documentacion">Ver la respuesta de la API <ArrowUpRight size={17} /></a>
+              <div className="sheet-bottom"><span>Ficha ilustrativa</span><span>Tu interfaz, tus reglas.</span></div>
             </div>
           </div>
         </section>

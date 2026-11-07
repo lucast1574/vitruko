@@ -138,25 +138,27 @@
   color: white;
 }
 .data-sheet {
+  min-width:0;
   padding: 32px;
   background: #202623;
   color: #f5f6f2;
   margin: 40px 30px 40px -18px;
   position: relative;
 }
-.sheet-top button {
-  border: 0;
-  background: transparent;
-  color: inherit;
-  padding: 8px;
+.v-showcase .data-sheet h2 {
+ font-size:clamp(26px,2.8vw,36px); line-height:1.15; letter-spacing:-.035em; margin:10px 0 16px;
 }
-.data-sheet pre {
-  font-size: 14px;
-  line-height: 1.85;
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-  margin: 40px 0;
-}
+.sheet-product {margin:30px 0 24px;}
+.sheet-brand {font-size:12px; color:#c0d2c0;}
+.sheet-product p {font-size:16px; line-height:1.6; color:#dbe3d9; margin:0; max-width:36ch;}
+.sheet-fields {margin:0;}
+.sheet-fields > div {display:flex; justify-content:space-between; gap:16px; padding:12px 0; border-bottom:1px solid #ffffff1a; font-size:13px;}
+.sheet-fields dt {color:#c0d2c0;}
+.sheet-fields dd {margin:0; text-align:right;}
+.sheet-context {font-size:13px; color:#c0d2c0; line-height:1.6; margin:20px 0 18px; max-width:44ch;}
+.sheet-docs {display:inline-flex; align-items:center; gap:8px; font-size:14px; color:#f5f6f2; padding:6px 0;}
+.sheet-docs:hover, .sheet-docs:focus-visible {text-decoration:underline; color:#dce8a0;}
+.data-sheet .sheet-bottom {margin-top:26px; font-size:11px;}
 .sheet-bottom {
   color: #c0d2c0;
   font-size: 12px;
