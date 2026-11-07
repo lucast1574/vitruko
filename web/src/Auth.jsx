@@ -2,8 +2,11 @@ import React, { useState, useEffect } from "react";
 import { ArrowRight, ArrowLeft } from "lucide-react";
 import { Logo, Button, Notice } from "./ui";
 import { api, siteURL } from "./client";
+import { authDestination } from "./auth-flow.js";
 export default function Auth() {
   const mode = location.pathname.slice(1);
+  const plan = new URLSearchParams(location.search).get("plan");
+  const planQuery = ["launch", "scale"].includes(plan) ? "?plan=" + plan : "";
   const [busy, setBusy] = useState(false),
     [error, setError] = useState(""),
     [message, setMessage] = useState("");
@@ -24,7 +27,7 @@ export default function Auth() {
       const idToken = await googleIdentity(google);
       setMessage("Verificando tu acceso a Vitruko…");
       await api("/console/google", "POST", { idToken });
-      location.assign("/app");
+      location.assign(authDestination(mode, location.search));
     } catch (e) {
       const messages = {
         "auth/popup-closed-by-user":
@@ -66,13 +69,13 @@ export default function Auth() {
           email: f.email,
           password: f.password,
         });
-        location.assign("/app/keys");
+        location.assign(authDestination(mode, location.search));
       } else if (mode === "login") {
         await api("/console/login", "POST", {
           email: f.email,
           password: f.password,
         });
-        location.assign("/app");
+        location.assign(authDestination(mode, location.search));
       } else if (mode === "forgot") {
         const v = await api("/console/forgot", "POST", { email: f.email });
         setMessage(v.message);
@@ -209,11 +212,11 @@ export default function Auth() {
               <>
                 <a href="/forgot">Olvidé mi contraseña</a>
                 <span>
-                  ¿Primera vez? <a href="/signup">Crea tu cuenta</a>
+                  ¿Primera vez? <a href={"/signup" + planQuery}>Crea tu cuenta</a>
                 </span>
               </>
             ) : (
-              <a href="/login">Ya tengo cuenta. Iniciar sesión</a>
+              <a href={"/login" + planQuery}>Ya tengo cuenta. Iniciar sesión</a>
             )}
           </div>
           <p className="auth-legal">

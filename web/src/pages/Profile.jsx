@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { LogOut, Save } from "lucide-react";
 import { api } from "../client";
 import { Button, Notice } from "../ui";
-export default function Profile({ user }) {
+export default function Profile({ user, onUpdate }) {
   const [message, setMessage] = useState(""),
     [error, setError] = useState(""),
     [busy, setBusy] = useState("");
@@ -12,9 +12,10 @@ export default function Profile({ user }) {
     setError("");
     setMessage("");
     try {
-      await api("/console/me", "PATCH", {
+      const updated = await api("/console/me", "PATCH", {
         name: new FormData(e.currentTarget).get("name"),
       });
+      onUpdate(updated);
       setMessage("Perfil actualizado.");
     } catch (e) {
       setError(e.message);
@@ -72,7 +73,7 @@ export default function Profile({ user }) {
             Correo
             <input value={user.email} readOnly type="email" />
           </label>
-          <Button busy={busy === "profile"}>
+          <Button busy={busy === "profile"} disabled={!!busy}>
             <Save size={16} />
             Guardar perfil
           </Button>
@@ -108,7 +109,7 @@ export default function Profile({ user }) {
               maxLength={72}
             />
           </label>
-          <Button busy={busy === "password"}>Actualizar contraseña</Button>
+          <Button busy={busy === "password"} disabled={!!busy}>Actualizar contraseña</Button>
         </form>
       </div>
       <div className="settings-row">
@@ -118,9 +119,18 @@ export default function Profile({ user }) {
         </div>
         <Button
           variant="secondary"
+          busy={busy === "logout"}
+          disabled={!!busy}
           onClick={async () => {
-            await api("/console/logout", "POST", {});
-            location.assign("/login");
+            setBusy("logout");
+            setError("");
+            try {
+              await api("/console/logout", "POST", {});
+              location.assign("/login");
+            } catch (e) {
+              setError(e.message);
+              setBusy("");
+            }
           }}
         >
           <LogOut size={16} />

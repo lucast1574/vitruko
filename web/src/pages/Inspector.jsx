@@ -6,12 +6,14 @@ export default function Inspector({ embedded = false }) {
     [result, setResult] = useState(null),
     [error, setError] = useState(""),
     [cache, setCache] = useState(""),
-    [copied, setCopied] = useState(false);
+    [copied, setCopied] = useState(false),
+    [imageFailed, setImageFailed] = useState(false);
   async function submit(e) {
     e.preventDefault();
     setBusy(true);
     setError("");
     setResult(null);
+    setImageFailed(false);
     setCopied(false);
     const fields = new FormData(e.currentTarget);
     try {
@@ -86,17 +88,15 @@ export default function Inspector({ embedded = false }) {
       {result ? (
         <div className="extraction-result">
           <article className="extracted-product">
-            {result.imageUrl ? (
+            {result.imageUrl && !imageFailed ? (
               <img
                 src={result.imageUrl}
                 alt={result.title}
                 referrerPolicy="no-referrer"
-                onError={(e) => {
-                  e.currentTarget.style.display = "none";
-                }}
+                onError={() => setImageFailed(true)}
               />
             ) : (
-              <p>La tienda no publicó una imagen.</p>
+              <p>{imageFailed ? "No se pudo cargar la imagen de la tienda." : "La tienda no publicó una imagen."}</p>
             )}
             <div>
               <h2>{result.title}</h2>

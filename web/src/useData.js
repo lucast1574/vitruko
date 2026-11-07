@@ -1,41 +1,40 @@
-import { useCallback, useEffect, useState } from "react";
-import { api } from "./client";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { api } from "./client.js";
 export function useData(path) {
   const [data, setData] = useState(null),
     [error, setError] = useState(""),
     [loading, setLoading] = useState(true);
+  const sequence = useRef(0), controller = useRef(null);
   const reload = useCallback(async () => {
+    const request = ++sequence.current;
+    controller.current?.abort();
+    const current = new AbortController();
+    controller.current = current;
+    setLoading(true);
     setError("");
     try {
-      const v = await api(path);
-      setData(v);
-      return v;
+      const value = await api(path, "GET", undefined, {}, current.signal);
+      if (request !== sequence.current) return;
+      setData(value);
+      return value;
     } catch (e) {
-      if (e.status === 401 && path !== "/console/session")
-        location.assign("/login");
-      setError(e.message);
+      if (request === sequence.current && e.name !== "AbortError") {
+        if (e.status === 401) location.assign("/login");
+        setError(e.message);
+        // Callers must not announce success when refreshing the saved data fails.
+        throw e;
+      }
     } finally {
-      setLoading(false);
+      if (request === sequence.current) setLoading(false);
     }
   }, [path]);
   useEffect(() => {
-    let active = true;
-    api(path)
-      .then((v) => {
-        if (active) setData(v);
-      })
-      .catch((e) => {
-        if (active) {
-          if (e.status === 401) location.assign("/login");
-          setError(e.message);
-        }
-      })
-      .finally(() => {
-        if (active) setLoading(false);
-      });
+    setData(null);
+    reload().catch(() => {});
     return () => {
-      active = false;
+      ++sequence.current;
+      controller.current?.abort();
     };
-  }, [path]);
+  }, [reload]);
   return { data, error, loading, reload, setData };
 }

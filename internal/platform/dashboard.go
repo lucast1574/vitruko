@@ -201,9 +201,13 @@ func (p *Platform) adminPlan(w http.ResponseWriter, r *http.Request) {
 		problem(w, 400, "invalid", "Cuota o límite por minuto inválidos.")
 		return
 	}
-	_, err := p.db.ExecContext(r.Context(), "UPDATE plans SET monthly_limit=$1,rpm=$2 WHERE id=$3", in.MonthlyLimit, in.RPM, r.PathValue("id"))
+	result, err := p.db.ExecContext(r.Context(), "UPDATE plans SET monthly_limit=$1,rpm=$2 WHERE id=$3", in.MonthlyLimit, in.RPM, r.PathValue("id"))
 	if err != nil {
 		problem(w, 503, "storage", "No se pudo actualizar el plan.")
+		return
+	}
+	if affected, _ := result.RowsAffected(); affected == 0 {
+		problem(w, 404, "not_found", "Plan no encontrado.")
 		return
 	}
 	_, _ = p.db.ExecContext(r.Context(), "INSERT INTO audit_events(actor_id,action,target_id) VALUES($1,'plan.update',$2)", current(r).ID, r.PathValue("id"))

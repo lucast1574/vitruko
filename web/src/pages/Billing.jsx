@@ -5,13 +5,14 @@ import { api, number, date } from "../client";
 import { Button, Notice } from "../ui";
 export default function Billing() {
   const { data: usage, error, reload } = useData("/console/usage"),
-    { data: catalog } = useData("/console/plans");
+    { data: catalog, error: catalogError } = useData("/console/plans");
   const [busy, setBusy] = useState(""),
     [message, setMessage] = useState(""),
     [localError, setError] = useState("");
   async function sync() {
     setBusy("sync");
     setError("");
+    setMessage("");
     try {
       await api("/console/billing/sync", "POST", {});
       await reload();
@@ -29,6 +30,7 @@ export default function Billing() {
   async function checkout(id) {
     setBusy(id);
     setError("");
+    setMessage("");
     try {
       const existing =
         sessionStorage.getItem("vitruko-checkout-" + id) || crypto.randomUUID();
@@ -50,6 +52,7 @@ export default function Billing() {
   async function portal() {
     setBusy("portal");
     setError("");
+    setMessage("");
     try {
       const v = await api("/console/billing/portal", "POST", {});
       if (new URL(v.url).hostname !== "billing.stripe.com")
@@ -60,6 +63,9 @@ export default function Billing() {
       setBusy("");
     }
   }
+  const requestedPlan = catalog?.plans.find(
+    (plan) => plan.id === new URLSearchParams(location.search).get("plan") && plan.priceCents > 0,
+  );
   return (
     <>
       <div className="page-title">
@@ -67,13 +73,16 @@ export default function Billing() {
           <h1>Tu plan, a tu ritmo</h1>
           <p>Suscripciones mensuales en USD. Sin cargos por excedentes.</p>
         </div>
-        <Button variant="secondary" busy={busy === "sync"} onClick={sync}>
+        <Button variant="secondary" busy={busy === "sync"} disabled={!!busy} onClick={sync}>
           <RefreshCw size={16} />
           Sincronizar
         </Button>
       </div>
-      <Notice error>{error || localError}</Notice>
+      <Notice error>{error || localError || catalogError}</Notice>
       <Notice>{message}</Notice>
+      {requestedPlan && (
+        <Notice>Elegiste {requestedPlan.name}. Revisa sus límites y confirma el plan para continuar en Stripe.</Notice>
+      )}
       {usage && (
         <div className="billing-current">
           <div>
@@ -100,7 +109,7 @@ export default function Billing() {
             </small>
           </div>
           {usage.hasSubscription && (
-            <Button onClick={portal} busy={busy === "portal"}>
+            <Button onClick={portal} busy={busy === "portal"} disabled={!!busy}>
               Gestionar facturación
               <ArrowUpRight size={16} />
             </Button>
@@ -152,6 +161,7 @@ export default function Billing() {
             ) : (
               <Button
                 busy={busy === p.id}
+                disabled={!!busy || !usage}
                 onClick={() =>
                   usage?.hasSubscription &&
                   ["active", "trialing", "past_due"].includes(

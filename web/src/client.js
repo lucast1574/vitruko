@@ -1,23 +1,31 @@
-export async function api(path, method = "GET", body, headers = {}) {
+export async function api(path, method = "GET", body, headers = {}, signal) {
   const response = await fetch(path, {
     method,
     credentials: "same-origin",
     headers: {
-      ...(body ? { "Content-Type": "application/json" } : {}),
+      ...(body !== undefined ? { "Content-Type": "application/json" } : {}),
       ...headers,
     },
-    body: body ? JSON.stringify(body) : undefined,
+    body: body !== undefined ? JSON.stringify(body) : undefined,
+    signal,
   });
-  const data = await response.json();
-  if (!response.ok) {
-    const error = new Error(data.error || "No se pudo completar la acción.");
+  let data;
+  try {
+    data = response.status === 204 ? null : await response.json();
+  } catch {
+    const error = new Error("El servidor no devolvió una respuesta válida. Intenta de nuevo.");
     error.status = response.status;
-    error.code = data.code;
+    throw error;
+  }
+  if (!response.ok) {
+    const error = new Error(data?.error || "No se pudo completar la acción.");
+    error.status = response.status;
+    error.code = data?.code;
     throw error;
   }
   return data;
 }
-const localDevelopment = import.meta.env.DEV && typeof location !== "undefined";
+const localDevelopment = import.meta.env?.DEV && typeof location !== "undefined";
 export const appURL = localDevelopment ? "" : "https://app-vitruko.nexode.app";
 export const siteURL = localDevelopment ? "" : "https://vitruko.nexode.app";
 export const number = (value) =>

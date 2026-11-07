@@ -33,7 +33,7 @@ const links = [
   ["docs", "Documentación", BookOpen],
 ];
 export default function Dashboard() {
-  const { data: user, error } = useData("/console/session");
+  const { data: user, error, setData: setUser } = useData("/console/session");
   const [menu, setMenu] = useState(false);
   const page = location.pathname.split("/")[2] || "";
   if (!user)
@@ -130,7 +130,7 @@ export default function Dashboard() {
           ) : page === "billing" ? (
             <Billing />
           ) : page === "profile" ? (
-            <Profile user={user} />
+            <Profile user={user} onUpdate={setUser} />
           ) : page === "docs" ? (
             <Docs />
           ) : page === "admin" && user.role === "admin" ? (

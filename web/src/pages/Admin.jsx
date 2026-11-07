@@ -11,11 +11,11 @@ export default function Admin() {
     [error, setError] = useState(""),
     [success, setSuccess] = useState(""),
     [busy, setBusy] = useState(false);
-  const { data: overview } = useData("/console/admin/overview"),
-    { data: users, reload } = useData(
+  const { data: overview, error: overviewError } = useData("/console/admin/overview"),
+    { data: users, error: usersError, loading: usersLoading, reload } = useData(
       "/console/admin/users?q=" + encodeURIComponent(filter),
     ),
-    { data: plans, reload: reloadPlans } = useData("/console/plans");
+    { data: plans, error: plansError, reload: reloadPlans } = useData("/console/plans");
   async function save(e) {
     e.preventDefault();
     setBusy(true);
@@ -69,7 +69,7 @@ export default function Admin() {
           Administrador
         </span>
       </div>
-      <Notice error>{error}</Notice>
+      <Notice error>{error || usersError || plansError || overviewError}</Notice>
       <Notice>{success}</Notice>
       {overview && (
         <div className="admin-metrics">
@@ -86,6 +86,7 @@ export default function Admin() {
           ))}
         </div>
       )}
+      {usersLoading && <p role="status">Cargando cuentas…</p>}
       <section className="admin-users">
         <div className="section-heading">
           <h2>Cuentas</h2>

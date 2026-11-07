@@ -30,6 +30,7 @@ jobs:
         with:
           go-version-file: go.mod
       - run: npm --prefix web ci
+      - run: npm --prefix web test
       - run: npm --prefix web run build
       - run: npm --prefix web audit --omit=dev
       - run: go test -race -count=1 ./...

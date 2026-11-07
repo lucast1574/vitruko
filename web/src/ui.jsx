@@ -19,8 +19,8 @@ export function Button({ children, variant = "", busy = false, ...props }) {
   return (
     <button
       className={`button ${variant}`}
-      disabled={busy || props.disabled}
       {...props}
+      disabled={busy || props.disabled}
     >
       {busy ? <span className="loading-dot" /> : null}
       {children}
