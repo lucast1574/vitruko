@@ -29,7 +29,7 @@ func fetchWithClient(ctx context.Context, raw string, client *http.Client) (Meta
 	// Prefer a supported public product API before requesting the heavier HTML page.
 	primary := shopifyStorefront(ctx, client, page)
 	primary.URL = raw
-	if primary.Title != "" && primary.ImageURL != "" && primary.Description != "" {
+	if primary.Title != "" && primary.ImageURL != "" && primary.Description != "" && primary.Price != nil && primary.Availability != "unknown" {
 		return primary, nil
 	}
 	req := previewRequest(ctx, raw)
@@ -58,19 +58,13 @@ func fetchWithClient(ctx context.Context, raw string, client *http.Client) (Meta
 	}
 	body, _ := io.ReadAll(io.LimitReader(reader, 4<<20))
 	data := Parse(bytes.NewReader(body), res.Request.URL.String())
-	if data.ImageURL == "" || !usefulTitle(data.Title, raw) {
+	if data.ImageURL == "" || !usefulTitle(data.Title, raw) || data.Price == nil || data.Availability == "unknown" {
 		if extra := vtexStorefront(ctx, client, res.Request.URL, body); extra.Title != "" {
-			data = extra
+			data = mergeMetadata(data, extra)
 		}
 	}
 	if primary.Title != "" {
-		data.Title = primary.Title
-		if primary.ImageURL != "" {
-			data.ImageURL = primary.ImageURL
-		}
-		if primary.Description != "" {
-			data.Description = primary.Description
-		}
+		data = mergeMetadata(data, primary)
 	}
 	data.URL = raw
 	if !usefulTitle(data.Title, raw) {

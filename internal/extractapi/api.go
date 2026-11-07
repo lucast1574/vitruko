@@ -140,6 +140,7 @@ func (a *API) fetchShared(key string) (fetchResult, error) {
 	if err != nil {
 		return fetchResult{}, err
 	}
+	data = linkpreview.Complete(data)
 	a.mu.Lock()
 	if len(a.cache) >= 256 {
 		for k, v := range a.cache {

@@ -41,18 +41,32 @@ export default function Docs({
       <section>
         <h2>Contrato de respuesta</h2>
         <pre>{`{
-  "title": "Nombre del producto",
-  "imageUrl": "https://tienda.com/imagen.jpg",
+  "title": "Cafetera",
+  "imageUrl": "https://tienda.com/cafetera-frente.jpg",
   "description": "Descripción publicada por la tienda",
-  "url": "https://tienda.com/products/articulo"
+  "url": "https://tienda.com/products/cafetera",
+  "images": ["https://tienda.com/cafetera-frente.jpg", "https://tienda.com/cafetera-lateral.jpg"],
+  "brand": "Casa",
+  "price": { "amount": "129.90", "currency": "PEN" },
+  "availability": "in_stock",
+  "quality": {
+    "productDetected": true,
+    "missingFields": [],
+    "fieldSources": {
+      "title": "json_ld", "description": "json_ld", "images": "json_ld",
+      "brand": "json_ld", "price": "json_ld", "availability": "json_ld"
+    },
+    "warnings": [],
+    "extractedAt": "2026-11-07T12:00:00Z"
+  }
 }`}</pre>
-        <p>
-          <code>title</code> identifica la ficha. <code>imageUrl</code> y{" "}
-          <code>description</code> pueden estar vacíos. <code>url</code>{" "}
-          conserva el enlace normalizado: elimina seguimiento conocido y
-          mantiene identificadores de producto y variante. No incluye precio,
-          inventario ni datos privados.
-        </p>
+        <p>Este es un ejemplo de respuesta completa. Los campos originales <code>title</code>, <code>imageUrl</code>, <code>description</code> y <code>url</code> se mantienen. La descripción, imagen y marca pueden estar vacías. <code>images</code> contiene hasta 20 URLs distintas y su primera imagen coincide con <code>imageUrl</code>. Vitruko devuelve enlaces a las imágenes; no descarga ni almacena esos archivos.</p>
+        <p><code>price</code> es <code>null</code> cuando no hay un importe y una moneda publicados que correspondan a una oferta identificable. <code>price.amount</code> es un string decimal en unidades principales: <code>"129.90"</code> PEN significa S/ 129.90, no centavos. No inferimos la moneda por el dominio o el símbolo, no sumamos envío ni convertimos divisas. Un rango de precios no se presenta como un precio único.</p>
+        <p><code>availability</code> puede ser <code>in_stock</code>, <code>out_of_stock</code>, <code>preorder</code>, <code>backorder</code>, <code>discontinued</code> o <code>unknown</code>. Refleja lo que publicó la tienda al consultarla; no es una garantía de inventario actual.</p>
+        <h3>Calidad y procedencia</h3>
+        <p><code>quality.productDetected</code> indica si se identificaron datos de producto en la fuente. <code>missingFields</code> enumera campos ausentes o sin confirmar. <code>fieldSources</code> indica el origen de cada campo disponible: <code>json_ld</code>, <code>microdata</code>, <code>open_graph</code>, <code>html_meta</code>, <code>html_title</code>, <code>product_meta</code>, <code>shopify_json</code> o <code>vtex_json</code>. No es una puntuación de certeza ni una validación comercial.</p>
+        <p><code>quality.extractedAt</code> usa UTC y se conserva al responder desde caché. Las advertencias posibles son <code>product_not_confirmed</code>, <code>multiple_products</code>, <code>multiple_offers</code>, <code>price_range</code> y <code>variant_not_confirmed</code>. Si hay varias ofertas o variantes, no elijas una por tu cuenta sin confirmar cuál corresponde al enlace.</p>
+        <p><code>url</code> conserva el enlace normalizado: elimina seguimiento conocido y mantiene los identificadores de producto y variante. Una URL de variante se conserva, pero la extracción de su precio y stock depende de que la fuente permita identificar esa oferta. Trata los campos ausentes como datos incompletos y ofrece confirmación o edición en tu aplicación.</p>
       </section>
       <section>
         <h2>Prueba una petición real</h2>

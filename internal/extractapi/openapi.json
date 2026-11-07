@@ -2,8 +2,8 @@
   "openapi": "3.0.3",
   "info": {
     "title": "Vitruko API",
-    "version": "1.0.0",
-    "description": "Extrae metadatos públicos de fichas de producto. No ejecuta JavaScript ni supera bloqueos de las tiendas."
+    "version": "1.1.0",
+    "description": "Extrae fichas públicas de productos con galería, marca, precio, disponibilidad y calidad de los datos cuando la fuente los publica. No ejecuta JavaScript ni supera bloqueos de las tiendas."
   },
   "servers": [
     {
@@ -52,7 +52,12 @@
                     "title",
                     "description",
                     "imageUrl",
-                    "url"
+                    "url",
+                    "images",
+                    "brand",
+                    "price",
+                    "availability",
+                    "quality"
                   ],
                   "properties": {
                     "title": {
@@ -66,6 +71,119 @@
                     },
                     "url": {
                       "type": "string"
+                    },
+                    "images": {
+                      "type": "array",
+                      "maxItems": 20,
+                      "uniqueItems": true,
+                      "items": {
+                        "type": "string",
+                        "format": "uri"
+                      },
+                      "description": "URLs HTTPS, sin descargar imágenes. La primera coincide con imageUrl cuando existe."
+                    },
+                    "brand": {
+                      "type": "string",
+                      "maxLength": 120,
+                      "description": "Marca publicada por la fuente; cadena vacía si falta."
+                    },
+                    "price": {
+                      "type": "object",
+                      "nullable": true,
+                      "required": [
+                        "amount",
+                        "currency"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "amount": {
+                          "type": "string",
+                          "pattern": "^(0|[1-9][0-9]{0,17})(\\.[0-9]{1,6})?$",
+                          "description": "Importe decimal en unidades principales, nunca centavos. Se conserva como string para evitar pérdida de precisión."
+                        },
+                        "currency": {
+                          "type": "string",
+                          "pattern": "^[A-Z]{3}$",
+                          "description": "Código de moneda publicado por la fuente; no se infiere del dominio ni del símbolo."
+                        }
+                      },
+                      "description": "null si falta importe o moneda, o no hay una oferta única identificable. No incluye envío ni conversión de moneda."
+                    },
+                    "availability": {
+                      "type": "string",
+                      "enum": [
+                        "in_stock",
+                        "out_of_stock",
+                        "preorder",
+                        "backorder",
+                        "discontinued",
+                        "unknown"
+                      ],
+                      "description": "Estado publicado al consultar la fuente. unknown indica que no se pudo confirmar; no garantiza inventario actual."
+                    },
+                    "quality": {
+                      "type": "object",
+                      "required": [
+                        "productDetected",
+                        "missingFields",
+                        "fieldSources",
+                        "warnings",
+                        "extractedAt"
+                      ],
+                      "properties": {
+                        "productDetected": {
+                          "type": "boolean",
+                          "description": "La fuente identificó datos como producto; no equivale a validación comercial."
+                        },
+                        "missingFields": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "enum": [
+                              "title",
+                              "description",
+                              "images",
+                              "brand",
+                              "price",
+                              "availability"
+                            ]
+                          }
+                        },
+                        "fieldSources": {
+                          "type": "object",
+                          "additionalProperties": {
+                            "type": "string",
+                            "enum": [
+                              "json_ld",
+                              "microdata",
+                              "open_graph",
+                              "html_meta",
+                              "html_title",
+                              "product_meta",
+                              "shopify_json",
+                              "vtex_json"
+                            ]
+                          }
+                        },
+                        "warnings": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "enum": [
+                              "product_not_confirmed",
+                              "multiple_products",
+                              "multiple_offers",
+                              "price_range",
+                              "variant_not_confirmed"
+                            ]
+                          }
+                        },
+                        "extractedAt": {
+                          "type": "string",
+                          "format": "date-time",
+                          "description": "Momento de extracción UTC; una respuesta desde caché conserva el valor original."
+                        }
+                      }
                     }
                   }
                 }

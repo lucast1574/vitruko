@@ -38,6 +38,9 @@ func TestAjaxProductAPIIsPreferredAndKeepsLocaleAndVariantURL(t *testing.T) {
 	var calls int
 	client := &http.Client{Transport: roundTripFunc(func(r *http.Request) (*http.Response, error) {
 		calls++
+		if r.URL.Path == "/es/products/cup" && r.URL.Query().Get("variant") == "42" {
+			return &http.Response{StatusCode: 200, Request: r, Header: http.Header{"Content-Type": {"text/html"}}, Body: io.NopCloser(strings.NewReader(`<script type="application/ld+json">{"@type":"Product","name":"Cup","offers":{"url":"https://shop.example/es/products/cup?variant=42","price":"19.90","priceCurrency":"PEN"}}</script>`))}, nil
+		}
 		if r.URL.Path != "/es/products/cup.js" || r.URL.RawQuery != "" {
 			t.Fatal(r.URL)
 		}
@@ -45,7 +48,7 @@ func TestAjaxProductAPIIsPreferredAndKeepsLocaleAndVariantURL(t *testing.T) {
 	})}
 	raw := "https://shop.example/es/products/cup?variant=42"
 	data, err := fetchWithClient(context.Background(), raw, client)
-	if err != nil || calls != 1 || data.Title != "Cup" || data.URL != raw || data.ImageURL != "https://shop.example/cup.jpg" {
+	if err != nil || calls != 2 || data.Price == nil || data.Price.Amount != "19.90" || data.Title != "Cup" || data.URL != raw || data.ImageURL != "https://shop.example/cup.jpg" {
 		t.Fatal(data, err, calls)
 	}
 }

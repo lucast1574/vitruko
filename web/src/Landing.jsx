@@ -28,6 +28,8 @@ const examples = [
     url: "https://tienda.example/products/bolso",
   },
 ];
+// The showcase is an illustrative JSON example, not a live store response.
+const showcase = examples.map((item) => ({...item, images:[`https://tienda.example${item.imageUrl}`], brand:"Vitruko studio", price:null, availability:"unknown", quality:{productDetected:true,missingFields:["price","availability"],fieldSources:{title:"json_ld",description:"json_ld",images:"json_ld",brand:"json_ld"},warnings:[],extractedAt:"2026-11-07T12:00:00Z"}}));
 const faqs = [
   [
     "¿Funciona con cualquier tienda?",
@@ -35,7 +37,7 @@ const faqs = [
   ],
   [
     "¿Qué información devuelve?",
-    "Título, descripción, URL de imagen y enlace normalizado. El nombre del producto tiene prioridad sobre el nombre genérico de la tienda cuando existe información estructurada. Una descripción o imagen ausente se devuelve vacía; nunca inventamos el dato ni un precio.",
+    "Nombre, descripción, marca, galería, enlace normalizado, precio con moneda y disponibilidad cuando la fuente los publica. quality indica los datos faltantes y el origen de cada campo. Sin precio y moneda identificables, price es null; nunca inventamos el dato.",
   ],
   [
     "¿Qué cuenta como una petición?",
@@ -132,7 +134,7 @@ export default function Landing() {
   }, []);
   async function copy() {
     try {
-      await navigator.clipboard.writeText(JSON.stringify(item, null, 2));
+      await navigator.clipboard.writeText(JSON.stringify({...showcase[selected],imageUrl:showcase[selected].images[0]}, null, 2));
       setCopied(true);
     } catch {
       setCopied(false);
@@ -161,8 +163,8 @@ export default function Landing() {
             </h1>
             <p className="hero-lead">
               La API que convierte una página de venta en datos que tu
-              aplicación entiende. Nombre, imagen y descripción, en una
-              petición.
+              aplicación entiende. Nombre, galería, marca, precio y disponibilidad
+              publicados por la tienda, en una petición.
             </p>
           </div>
           <div className="hero-cta">
@@ -242,7 +244,7 @@ export default function Landing() {
                   {copied ? <Check size={18} /> : <Copy size={18} />}
                 </button>
               </div>
-              <pre>{JSON.stringify(item, null, 2)}</pre>
+              <pre>{JSON.stringify({...showcase[selected],imageUrl:showcase[selected].images[0]}, null, 2)}</pre>
               <div className="sheet-bottom">
                 <span>POST /v1/extract</span>
                 <span>JSON de ejemplo</span>
@@ -312,7 +314,7 @@ export default function Landing() {
               </div>
               <p>
                 Asigna <code>title</code>, <code>imageUrl</code>,{" "}
-                <code>description</code> y <code>url</code> a tus componentes.
+                <code>description</code> y <code>url</code> a tus componentes. Añade galería, marca, precio y disponibilidad cuando estén publicados; quality indica qué falta y el origen de cada campo.
                 Tú decides qué construir.
               </p>
             </div>

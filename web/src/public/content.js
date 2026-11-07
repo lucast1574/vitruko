@@ -3,7 +3,7 @@ export const pages = {
   "/": {
     title: "Vitruko | API de extracción de productos y enlaces",
     description:
-      "Convierte enlaces de tiendas en fichas de producto JSON. Nombre, imagen, descripción y URL con API keys, cuotas y panel. Empieza con 1.000 peticiones gratis.",
+      "Convierte enlaces de tiendas en fichas de producto JSON. Marca, galería, precio, disponibilidad y calidad de datos con API keys, cuotas y panel. Empieza con 1.000 peticiones gratis.",
   },
   "/documentacion": {
     title: "Documentación de la API de productos | Vitruko",
@@ -19,18 +19,18 @@ export const pages = {
   "/api-extraer-productos": {
     title: "API para extraer información de productos | Vitruko",
     description:
-      "Convierte enlaces de tiendas en nombre, imagen, descripción y URL normalizada con una API en Go.",
+      "Extrae nombre, marca, galería, precio y disponibilidad publicados por tiendas en una ficha JSON con calidad y procedencia.",
     heading: "Extrae la ficha. Construye lo demás.",
     navTitle: "Extracción de productos",
     summary:
-      "Convierte enlaces de tiendas en nombre, imagen, descripción y URL normalizada con una API en Go.",
+      "Extrae nombre, marca, galería, precio y disponibilidad publicados por tiendas en una ficha JSON con calidad y procedencia.",
     scope: "extract",
     operation: "extract",
     code: 'curl "https://api-vitruko.nexode.app/v1/extract" \\\n  -H "X-API-Key: TU_API_KEY" \\\n  -H "Content-Type: application/json" \\\n  -d \'{"url":"https://tienda.com/products/articulo"}\'',
     sections: [
       {
         title: "Un contrato para tu interfaz",
-        text: "Una lista de regalos o una colección de productos empieza con un enlace. Copiar a mano nombre, descripción e imagen añade trabajo y errores. Vitruko recibe la URL y devuelve esos cuatro campos como JSON. Puedes asignarlos a tus componentes, revisarlos y guardarlos en tu propia aplicación. La API no añade precios estimados, disponibilidad ni campos que la página no haya publicado.",
+        text: "Una lista de regalos o una colección de productos empieza con un enlace. Copiar a mano nombre, descripción e imagen añade trabajo y errores. Vitruko recibe la URL y devuelve una ficha JSON. Puedes asignarlos a tus componentes, revisarlos y guardarlos en tu propia aplicación. La API también devuelve marca, galería, precio con moneda y disponibilidad cuando la fuente los publica, junto con datos de calidad. No estima los valores ausentes.",
       },
       {
         title: "Cómo se elige la información",
@@ -68,7 +68,7 @@ export const pages = {
       },
       {
         title: "Diseña para respuestas incompletas",
-        text: "No todas las tiendas publican Open Graph o JSON-LD completo. Muestra un bloque neutral cuando imageUrl esté vacío, limita el texto de descripción y deja que la persona confirme el título antes de guardar. Trata la salida como datos, nunca como HTML ejecutable: renderiza el texto con las protecciones normales de tu framework. El endpoint no ofrece un precio verificado ni una garantía de inventario.",
+        text: "No todas las tiendas publican Open Graph o JSON-LD completo. Muestra un bloque neutral cuando imageUrl esté vacío, limita el texto de descripción y deja que la persona confirme el título antes de guardar. Trata la salida como datos, nunca como HTML ejecutable: renderiza el texto con las protecciones normales de tu framework. El endpoint devuelve el precio y la disponibilidad publicados cuando puede identificarlos, sin garantía de inventario actual. price es null y availability es unknown si no se pudieron confirmar.",
       },
       {
         title: "Repeticiones y cambios en la tienda",

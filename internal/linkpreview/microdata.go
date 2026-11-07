@@ -41,7 +41,8 @@ func attribute(n *html.Node, key string) string {
 	return ""
 }
 func readMicroProduct(root *html.Node) Metadata {
-	out := Metadata{}
+	out := sourced(Metadata{}, "microdata")
+	var offers []*html.Node
 	budget := 10000
 	var visit func(*html.Node, int)
 	visit = func(n *html.Node, depth int) {
@@ -50,6 +51,13 @@ func readMicroProduct(root *html.Node) Metadata {
 			return
 		}
 		if n != root && attribute(n, "itemtype") != "" && attribute(n, "itemprop") != "image" {
+			prop := attribute(n, "itemprop")
+			if prop == "offers" {
+				offers = append(offers, n)
+			}
+			if prop == "brand" {
+				out.Brand = microValueFor(n, "name")
+			}
 			return
 		}
 		for _, prop := range strings.Fields(attribute(n, "itemprop")) {
@@ -68,7 +76,10 @@ func readMicroProduct(root *html.Node) Metadata {
 				if out.Title == "" {
 					out.Title = value
 				}
+			case "brand":
+				out.Brand = value
 			case "image":
+				out.Images = append(out.Images, value)
 				if out.ImageURL == "" {
 					out.ImageURL = value
 				}
@@ -83,6 +94,12 @@ func readMicroProduct(root *html.Node) Metadata {
 		}
 	}
 	visit(root, 0)
+	if len(offers) == 1 {
+		out.Price = price(microValueFor(offers[0], "price"), microValueFor(offers[0], "priceCurrency"))
+		out.Availability = availability(microValueFor(offers[0], "availability"))
+	} else if len(offers) > 1 {
+		out.warnings = append(out.warnings, "multiple_offers")
+	}
 	return out
 }
 func nodeText(n *html.Node, depth int) string {
@@ -98,4 +115,35 @@ func nodeText(n *html.Node, depth int) string {
 		b.WriteByte(' ')
 	}
 	return truncate(b.String(), 1000)
+}
+
+func microValueFor(root *html.Node, prop string) string {
+	budget := 1000
+	var find func(*html.Node, int) string
+	find = func(n *html.Node, depth int) string {
+		budget--
+		if depth > 20 || budget < 0 {
+			return ""
+		}
+		if n != root && attribute(n, "itemtype") != "" {
+			return ""
+		}
+		for _, p := range strings.Fields(attribute(n, "itemprop")) {
+			if p == prop {
+				for _, attr := range []string{"content", "href", "src"} {
+					if v := attribute(n, attr); v != "" {
+						return v
+					}
+				}
+				return nodeText(n, 0)
+			}
+		}
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			if v := find(c, depth+1); v != "" {
+				return v
+			}
+		}
+		return ""
+	}
+	return find(root, 0)
 }

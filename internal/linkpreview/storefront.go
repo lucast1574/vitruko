@@ -25,11 +25,15 @@ func shopifyStorefront(ctx context.Context, client *http.Client, page *url.URL) 
 	if len(parts) >= 2 && parts[len(parts)-2] == "products" && !strings.Contains(parts[len(parts)-1], ".") {
 		endpoint.Path = strings.TrimRight(page.Path, "/") + ".js"
 		var product struct {
-			Title         string `json:"title"`
-			Description   string `json:"description"`
-			FeaturedImage string `json:"featured_image"`
+			Title         string   `json:"title"`
+			Description   string   `json:"description"`
+			FeaturedImage string   `json:"featured_image"`
+			Vendor        string   `json:"vendor"`
+			Images        []string `json:"images"`
+			Available     *bool    `json:"available"`
 			Variants      []struct {
 				ID            json.Number `json:"id"`
+				Available     *bool       `json:"available"`
 				FeaturedImage *struct {
 					Src string `json:"src"`
 				} `json:"featured_image"`
@@ -41,6 +45,7 @@ func shopifyStorefront(ctx context.Context, client *http.Client, page *url.URL) 
 				for _, variant := range product.Variants {
 					if variant.ID.String() == id {
 						found = true
+						product.Available = variant.Available
 						if variant.FeaturedImage != nil {
 							product.FeaturedImage = variant.FeaturedImage.Src
 						}
@@ -51,7 +56,17 @@ func shopifyStorefront(ctx context.Context, client *http.Client, page *url.URL) 
 					return Metadata{}
 				}
 			}
-			return checkedStoreMetadata(Metadata{Title: product.Title, ImageURL: product.FeaturedImage, Description: product.Description}, page)
+			if page.Query().Get("variant") != "" && len(product.Variants) == 0 {
+				product.Available = nil
+			}
+			stock := "unknown"
+			if product.Available != nil {
+				stock = "out_of_stock"
+				if *product.Available {
+					stock = "in_stock"
+				}
+			}
+			return checkedStoreMetadata(sourced(Metadata{Title: product.Title, ImageURL: product.FeaturedImage, Images: product.Images, Description: product.Description, Brand: product.Vendor, Availability: stock}, "shopify_json"), page)
 		}
 	}
 	return Metadata{}
@@ -66,7 +81,16 @@ func vtexStorefront(ctx context.Context, client *http.Client, page *url.URL, bod
 			Name        string `json:"productName"`
 			LinkText    string `json:"linkText"`
 			Description string `json:"description"`
+			Brand       string `json:"brand"`
 			Items       []struct {
+				ID      string `json:"itemId"`
+				Sellers []struct {
+					Offer struct {
+						Price    json.Number `json:"Price"`
+						Currency string      `json:"CurrencyCode"`
+						Quantity *int        `json:"AvailableQuantity"`
+					} `json:"commertialOffer"`
+				} `json:"sellers"`
 				Images []struct {
 					URL string `json:"imageUrl"`
 				} `json:"images"`
@@ -77,11 +101,38 @@ func vtexStorefront(ctx context.Context, client *http.Client, page *url.URL, bod
 				if product.LinkText != parts[0] {
 					continue
 				}
-				image := ""
-				if len(product.Items) > 0 && len(product.Items[0].Images) > 0 {
-					image = product.Items[0].Images[0].URL
+				m := sourced(Metadata{Title: product.Name, Description: product.Description, Brand: product.Brand}, "vtex_json")
+				items := product.Items
+				if sku := page.Query().Get("skuId"); sku != "" {
+					items = nil
+					for _, item := range product.Items {
+						if item.ID == sku {
+							items = append(items, item)
+							break
+						}
+					}
+					if len(items) == 0 {
+						return Metadata{}
+					}
 				}
-				return checkedStoreMetadata(Metadata{Title: product.Name, ImageURL: image, Description: product.Description}, page)
+				for _, item := range items {
+					for _, image := range item.Images {
+						m.Images = append(m.Images, image.URL)
+					}
+				}
+				if len(items) == 1 && len(items[0].Sellers) == 1 {
+					offer := items[0].Sellers[0].Offer
+					m.Price = price(offer.Price.String(), offer.Currency)
+					if offer.Quantity != nil {
+						m.Availability = "out_of_stock"
+						if *offer.Quantity > 0 {
+							m.Availability = "in_stock"
+						}
+					}
+				} else if len(items) > 0 {
+					m.warnings = append(m.warnings, "multiple_offers")
+				}
+				return checkedStoreMetadata(m, page)
 			}
 		}
 	}
@@ -113,7 +164,7 @@ func checkedStoreMetadata(data Metadata, page *url.URL) Metadata {
 	data.Description = plainStoreDescription(data.Description)
 	data.ImageURL = checkedImageURL(page, data.ImageURL)
 	data.URL = page.String()
-	return data
+	return normalizeMetadata(data)
 }
 
 func plainStoreDescription(raw string) string {

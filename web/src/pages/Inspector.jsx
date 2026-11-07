@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { ArrowUpRight, Copy, Check, ScanLine } from "lucide-react";
 import { Button, Notice } from "../ui";
+import ProductPreview from "./ProductPreview";
 import { sourceRetryDeadline, sourceHost } from "../source-cooldown.js";
 export default function Inspector({ embedded = false }) {
   const [busy, setBusy] = useState(false),
@@ -8,12 +9,15 @@ export default function Inspector({ embedded = false }) {
     [error, setError] = useState(""),
     [cache, setCache] = useState(""),
     [copied, setCopied] = useState(false),
-    [imageFailed, setImageFailed] = useState(false);
+    [duration, setDuration] = useState(null);
   const [targetURL, setTargetURL] = useState(""),
     [limitedHost, setLimitedHost] = useState(""),
     [retryUntil, setRetryUntil] = useState(0),
     [now, setNow] = useState(Date.now());
-  const remaining = sourceHost(targetURL) === limitedHost ? Math.max(0, Math.ceil((retryUntil - now) / 1000)) : 0;
+  const remaining =
+    sourceHost(targetURL) === limitedHost
+      ? Math.max(0, Math.ceil((retryUntil - now) / 1000))
+      : 0;
   useEffect(() => {
     if (retryUntil <= now) return;
     const timer = setTimeout(() => setNow(Date.now()), 1000);
@@ -24,9 +28,10 @@ export default function Inspector({ embedded = false }) {
     setBusy(true);
     setError("");
     setResult(null);
-    setImageFailed(false);
+    setDuration(null);
     setCopied(false);
     const fields = new FormData(e.currentTarget);
+    const started = performance.now();
     try {
       const res = await fetch("/v1/extract", {
         method: "POST",
@@ -36,17 +41,29 @@ export default function Inspector({ embedded = false }) {
         },
         body: JSON.stringify({ url: fields.get("url") }),
       });
-      const value = await res.json();
+      let value;
+      try {
+        value = await res.json();
+      } catch {
+        throw new Error(
+          "El servidor no devolvi� una respuesta v�lida. Vuelve a intentarlo.",
+        );
+      }
       if (!res.ok) {
         if (value.code === "source_rate_limited") {
           const current = Date.now();
           setNow(current);
           setLimitedHost(sourceHost(fields.get("url")));
-          setRetryUntil(sourceRetryDeadline(res.headers.get("Retry-After"), current));
-          throw new Error("Esta tienda limita temporalmente las consultas. Podrás reintentar cuando termine la espera.");
+          setRetryUntil(
+            sourceRetryDeadline(res.headers.get("Retry-After"), current),
+          );
+          throw new Error(
+            "Esta tienda limita temporalmente las consultas. Podrás reintentar cuando termine la espera.",
+          );
         }
         throw new Error(value.error || "No se pudo extraer la ficha.");
       }
+      setDuration(Math.round(performance.now() - started));
       setResult(value);
       setCache(res.headers.get("X-Cache"));
     } catch (err) {
@@ -101,39 +118,21 @@ export default function Inspector({ embedded = false }) {
           />
         </label>
         <Button busy={busy} disabled={remaining > 0} type="submit">
-          {busy ? "Leyendo la ficha…" : remaining > 0 ? `Reintentar en ${remaining} s` : "Extraer producto"}
+          {busy
+            ? "Leyendo la ficha…"
+            : remaining > 0
+              ? `Reintentar en ${remaining} s`
+              : "Extraer producto"}
           <ArrowUpRight size={17} />
         </Button>
       </form>
       <Notice error>{error}</Notice>
       {result ? (
         <div className="extraction-result">
-          <article className="extracted-product">
-            {result.imageUrl && !imageFailed ? (
-              <img
-                src={result.imageUrl}
-                alt={result.title}
-                referrerPolicy="no-referrer"
-                onError={() => setImageFailed(true)}
-              />
-            ) : (
-              <p>{imageFailed ? "No se pudo cargar la imagen de la tienda." : "La tienda no publicó una imagen."}</p>
-            )}
-            <div>
-              <h2>{result.title}</h2>
-              <p>
-                {result.description || "La tienda no publicó una descripción."}
-              </p>
-              <a
-                className="text-link"
-                href={result.url}
-                target="_blank"
-                rel="noreferrer"
-              >
-                Abrir producto <ArrowUpRight size={16} />
-              </a>
-            </div>
-          </article>
+          <ProductPreview
+            key={result.url + result.quality?.extractedAt}
+            result={result}
+          />
           <div className="extracted-json">
             <div>
               <h2>Respuesta JSON</h2>
