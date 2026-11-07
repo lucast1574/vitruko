@@ -9,6 +9,7 @@ export default function Admin() {
     [target, setTarget] = useState(null),
     [planTarget, setPlanTarget] = useState(null),
     [error, setError] = useState(""),
+    [success, setSuccess] = useState(""),
     [busy, setBusy] = useState(false);
   const { data: overview } = useData("/console/admin/overview"),
     { data: users, reload } = useData(
@@ -19,16 +20,18 @@ export default function Admin() {
     e.preventDefault();
     setBusy(true);
     setError("");
+    setSuccess("");
     try {
       await api("/console/admin/users/" + target.id, "PATCH", {
         disabled: target.disabled,
         role: target.role,
-        ...(!target.subscriptionId && target.subscriptionStatus !== "active"
+        ...(target.planId !== target.originalPlanId
           ? { planId: target.planId }
           : {}),
       });
       setTarget(null);
       await reload();
+      setSuccess("Cambios de la cuenta guardados.");
     } catch (e) {
       setError(e.message);
     } finally {
@@ -39,6 +42,7 @@ export default function Admin() {
     e.preventDefault();
     setBusy(true);
     setError("");
+    setSuccess("");
     try {
       await api("/console/admin/plans/" + planTarget.id, "PATCH", {
         monthlyLimit: Number(planTarget.monthlyLimit),
@@ -46,6 +50,7 @@ export default function Admin() {
       });
       setPlanTarget(null);
       await reloadPlans();
+      setSuccess("Límites del plan guardados.");
     } catch (e) {
       setError(e.message);
     } finally {
@@ -65,6 +70,7 @@ export default function Admin() {
         </span>
       </div>
       <Notice error>{error}</Notice>
+      <Notice>{success}</Notice>
       {overview && (
         <div className="admin-metrics">
           {[
@@ -138,7 +144,8 @@ export default function Admin() {
                       aria-label={`Editar ${u.email}`}
                       onClick={() => {
                         setError("");
-                        setTarget({ ...u });
+                        setSuccess("");
+                        setTarget({ ...u, originalPlanId: u.planId });
                       }}
                     >
                       <Settings2 size={17} />
@@ -168,6 +175,7 @@ export default function Admin() {
               variant="secondary"
               onClick={() => {
                 setError("");
+                setSuccess("");
                 setPlanTarget({ ...p });
               }}
             >
@@ -195,7 +203,7 @@ export default function Admin() {
                 ]}
               />
             </label>
-            {target.subscriptionStatus === "active" ? (
+            {["active", "trialing", "past_due"].includes(target.subscriptionStatus) ? (
               <Notice>
                 El plan está vinculado a Stripe. Debe cambiarse desde la
                 facturación de la suscripción.
