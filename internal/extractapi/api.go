@@ -3,13 +3,16 @@ package extractapi
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"io"
 	"net/http"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
 
 	"github.com/lucast1574/vitruko/internal/linkpreview"
+	"golang.org/x/sync/singleflight"
 )
 
 type cached struct {
@@ -17,6 +20,7 @@ type cached struct {
 	expires time.Time
 }
 type API struct {
+	work  singleflight.Group
 	mu    sync.Mutex
 	cache map[string]cached
 	slots chan struct{}
@@ -75,18 +79,66 @@ func (a *API) extract(w http.ResponseWriter, r *http.Request) {
 		respond(w, 200, entry.data)
 		return
 	}
+	shared := a.work.DoChan(key, func() (any, error) {
+		return a.fetchShared(key)
+	})
+	var outcome singleflight.Result
+	select {
+	case outcome = <-shared:
+	case <-r.Context().Done():
+		fail(w, 408, "request_cancelled", "La petición fue cancelada. Reintenta cuando estés listo.")
+		return
+	}
+	if outcome.Err != nil {
+		if errors.Is(outcome.Err, errBusy) {
+			w.Header().Set("Retry-After", "2")
+			fail(w, 503, "busy", "La extracción está ocupada. Reintenta en unos segundos.")
+			return
+		}
+		var limited *linkpreview.SourceRateLimit
+		if errors.As(outcome.Err, &limited) {
+			w.Header().Set("Retry-After", strconv.Itoa(limited.RetryAfter()))
+			fail(w, 429, "source_rate_limited", limited.Error())
+			return
+		}
+		fail(w, 422, "extraction_unavailable", outcome.Err.Error())
+		return
+	}
+	result := outcome.Val.(fetchResult)
+	if result.hit {
+		w.Header().Set("X-Cache", "HIT")
+	} else {
+		w.Header().Set("X-Cache", "MISS")
+	}
+	respond(w, 200, result.data)
+}
+
+var errBusy = errors.New("extractor occupied")
+
+type fetchResult struct {
+	data linkpreview.Metadata
+	hit  bool
+}
+
+func (a *API) fetchShared(key string) (fetchResult, error) {
+	a.mu.Lock()
+	entry, ok := a.cache[key]
+	a.mu.Unlock()
+	if ok && time.Now().Before(entry.expires) {
+		return fetchResult{data: entry.data, hit: true}, nil
+	}
 	select {
 	case a.slots <- struct{}{}:
 		defer func() { <-a.slots }()
 	default:
-		w.Header().Set("Retry-After", "2")
-		fail(w, 503, "busy", "La extracción está ocupada. Reintenta en unos segundos.")
-		return
+		return fetchResult{}, errBusy
 	}
-	data, err := a.fetch(r.Context(), key)
+	// The work is shared and bounded; one disconnect must not cancel other callers.
+	ctx, cancel := context.WithTimeout(context.Background(), 12*time.Second)
+	defer cancel()
+	data, err := a.fetch(ctx, key)
 	if err != nil {
-		fail(w, 422, "extraction_unavailable", err.Error())
-		return
+		return fetchResult{}, err
 	}
 	a.mu.Lock()
 	if len(a.cache) >= 256 {
@@ -104,6 +156,5 @@ func (a *API) extract(w http.ResponseWriter, r *http.Request) {
 	}
 	a.cache[key] = cached{data: data, expires: time.Now().Add(5 * time.Minute)}
 	a.mu.Unlock()
-	w.Header().Set("X-Cache", "MISS")
-	respond(w, 200, data)
+	return fetchResult{data: data}, nil
 }

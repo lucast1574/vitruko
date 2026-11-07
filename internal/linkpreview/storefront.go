@@ -3,6 +3,7 @@ package linkpreview
 import (
 	"context"
 	"encoding/json"
+	"golang.org/x/net/html"
 	"io"
 	"net/http"
 	"net/url"
@@ -12,20 +13,54 @@ import (
 // Public storefront APIs complement HTML metadata; no scripts are executed,
 // no browser cookies are forwarded and every destination uses the checked client.
 func storefront(ctx context.Context, client *http.Client, page *url.URL, body []byte) Metadata {
+	if product := shopifyStorefront(ctx, client, page); product.Title != "" {
+		return product
+	}
+	return vtexStorefront(ctx, client, page, body)
+}
+func shopifyStorefront(ctx context.Context, client *http.Client, page *url.URL) Metadata {
 	parts := strings.Split(strings.Trim(page.Path, "/"), "/")
 	endpoint := *page
 	endpoint.RawQuery, endpoint.Fragment = "", ""
-	if len(parts) == 2 && parts[0] == "products" {
-		endpoint.Path = page.Path + ".js"
+	if len(parts) >= 2 && parts[len(parts)-2] == "products" && !strings.Contains(parts[len(parts)-1], ".") {
+		endpoint.Path = strings.TrimRight(page.Path, "/") + ".js"
 		var product struct {
 			Title         string `json:"title"`
 			Description   string `json:"description"`
 			FeaturedImage string `json:"featured_image"`
+			Variants      []struct {
+				ID            json.Number `json:"id"`
+				FeaturedImage *struct {
+					Src string `json:"src"`
+				} `json:"featured_image"`
+			} `json:"variants"`
 		}
 		if readStoreJSON(ctx, client, endpoint.String(), &product) {
+			if id := page.Query().Get("variant"); id != "" && len(product.Variants) > 0 {
+				found := false
+				for _, variant := range product.Variants {
+					if variant.ID.String() == id {
+						found = true
+						if variant.FeaturedImage != nil {
+							product.FeaturedImage = variant.FeaturedImage.Src
+						}
+						break
+					}
+				}
+				if !found {
+					return Metadata{}
+				}
+			}
+			product.Description = plainStoreDescription(product.Description)
 			return checkedStoreMetadata(Metadata{Title: product.Title, ImageURL: product.FeaturedImage, Description: product.Description}, page)
 		}
 	}
+	return Metadata{}
+}
+func vtexStorefront(ctx context.Context, client *http.Client, page *url.URL, body []byte) Metadata {
+	parts := strings.Split(strings.Trim(page.Path, "/"), "/")
+	endpoint := *page
+	endpoint.RawQuery, endpoint.Fragment = "", ""
 	if len(parts) == 2 && parts[1] == "p" && strings.Contains(strings.ToLower(string(body)), "vtex") {
 		endpoint.Path = "/api/catalog_system/pub/products/search/" + parts[0] + "/p"
 		var products []struct {
@@ -84,4 +119,29 @@ func checkedStoreMetadata(data Metadata, page *url.URL) Metadata {
 	}
 	data.URL = page.String()
 	return data
+}
+
+func plainStoreDescription(raw string) string {
+	z := html.NewTokenizer(strings.NewReader(raw))
+	var text strings.Builder
+	skip := false
+	for {
+		kind := z.Next()
+		if kind == html.ErrorToken {
+			break
+		}
+		token := z.Token()
+		if kind == html.StartTagToken && (token.Data == "script" || token.Data == "style") {
+			skip = true
+		}
+		if kind == html.EndTagToken && (token.Data == "script" || token.Data == "style") {
+			skip = false
+			continue
+		}
+		if kind == html.TextToken && !skip {
+			text.WriteString(token.Data)
+			text.WriteByte(' ')
+		}
+	}
+	return truncate(text.String(), 1000)
 }

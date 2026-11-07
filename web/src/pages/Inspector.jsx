@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ArrowUpRight, Copy, Check, ScanLine } from "lucide-react";
 import { Button, Notice } from "../ui";
+import { sourceRetryDeadline, sourceHost } from "../source-cooldown.js";
 export default function Inspector({ embedded = false }) {
   const [busy, setBusy] = useState(false),
     [result, setResult] = useState(null),
@@ -8,6 +9,16 @@ export default function Inspector({ embedded = false }) {
     [cache, setCache] = useState(""),
     [copied, setCopied] = useState(false),
     [imageFailed, setImageFailed] = useState(false);
+  const [targetURL, setTargetURL] = useState(""),
+    [limitedHost, setLimitedHost] = useState(""),
+    [retryUntil, setRetryUntil] = useState(0),
+    [now, setNow] = useState(Date.now());
+  const remaining = sourceHost(targetURL) === limitedHost ? Math.max(0, Math.ceil((retryUntil - now) / 1000)) : 0;
+  useEffect(() => {
+    if (retryUntil <= now) return;
+    const timer = setTimeout(() => setNow(Date.now()), 1000);
+    return () => clearTimeout(timer);
+  }, [retryUntil, now]);
   async function submit(e) {
     e.preventDefault();
     setBusy(true);
@@ -26,8 +37,16 @@ export default function Inspector({ embedded = false }) {
         body: JSON.stringify({ url: fields.get("url") }),
       });
       const value = await res.json();
-      if (!res.ok)
+      if (!res.ok) {
+        if (value.code === "source_rate_limited") {
+          const current = Date.now();
+          setNow(current);
+          setLimitedHost(sourceHost(fields.get("url")));
+          setRetryUntil(sourceRetryDeadline(res.headers.get("Retry-After"), current));
+          throw new Error("Esta tienda limita temporalmente las consultas. Podrás reintentar cuando termine la espera.");
+        }
         throw new Error(value.error || "No se pudo extraer la ficha.");
+      }
       setResult(value);
       setCache(res.headers.get("X-Cache"));
     } catch (err) {
@@ -73,14 +92,16 @@ export default function Inspector({ embedded = false }) {
           Enlace público del producto
           <input
             name="url"
+            value={targetURL}
+            onChange={(e) => setTargetURL(e.target.value)}
             type="url"
             required
             placeholder="https://tienda.com/producto"
             maxLength={2048}
           />
         </label>
-        <Button busy={busy} type="submit">
-          {busy ? "Leyendo la ficha…" : "Extraer producto"}
+        <Button busy={busy} disabled={remaining > 0} type="submit">
+          {busy ? "Leyendo la ficha…" : remaining > 0 ? `Reintentar en ${remaining} s` : "Extraer producto"}
           <ArrowUpRight size={17} />
         </Button>
       </form>

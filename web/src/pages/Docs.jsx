@@ -116,8 +116,8 @@ export default function Docs({
                 ],
                 [
                   429,
-                  "Cuota o velocidad excedida",
-                  "Respeta Retry-After o cambia de plan.",
+                  "Cuota, velocidad o límite temporal de la tienda",
+                  "Respeta Retry-After. source_rate_limited indica un límite de la tienda, no de tu plan.",
                 ],
                 [
                   503,

@@ -94,7 +94,7 @@ export const pages = {
       },
       {
         title: "Complementos públicos de Shopify y VTEX",
-        text: "Si faltan nombre o imagen, el extractor puede consultar la ficha pública compatible de Shopify para rutas products y la fuente pública de catálogo VTEX cuando identifica una página compatible terminada en p. Estos complementos usan el mismo cliente que verifica destinos públicos. En VTEX se comprueba la coincidencia del identificador de la ficha para evitar devolver otro artículo del catálogo.",
+        text: "Para rutas products compatibles, el extractor consulta primero la API pública de producto de Shopify, conservando prefijos de idioma. Para VTEX puede complementar el HTML con su fuente pública de catálogo cuando identifica una página compatible terminada en p. Estos complementos usan el mismo cliente que verifica destinos públicos. En VTEX se comprueba la coincidencia del identificador de la ficha para evitar devolver otro artículo del catálogo.",
       },
       {
         title: "Enlaces compartidos de Mercado Libre",
@@ -102,7 +102,7 @@ export const pages = {
       },
       {
         title: "Lo que debes prever en producción",
-        text: "Una tienda puede restringir solicitudes automatizadas, mover sus rutas o exigir JavaScript. Vitruko no ejecuta un navegador ni resuelve CAPTCHA; esos casos pueden devolver HTTP 422. Maneja el error con edición manual y conserva el enlace. Respeta los límites de tu plan y las condiciones de cada fuente. Los nombres de plataformas describen compatibilidad técnica y no una asociación comercial.",
+        text: "Una tienda puede restringir solicitudes automatizadas, mover sus rutas o exigir JavaScript. Vitruko no ejecuta un navegador ni resuelve CAPTCHA; esos casos pueden devolver HTTP 422. Maneja el error con edición manual y conserva el enlace. Si la tienda impone una espera, HTTP 429 con code source_rate_limited y Retry-After indica cuándo reintentar. Las consultas al mismo dominio se espacian y durante esa espera no se vuelve a consultar la tienda. Respeta los límites de tu plan y las condiciones de cada fuente. Los nombres de plataformas describen compatibilidad técnica y no una asociación comercial.",
       },
     ],
   },

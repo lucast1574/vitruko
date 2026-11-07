@@ -1,15 +1,122 @@
 {
   "openapi": "3.0.3",
-  "info": {"title": "Vitruko API", "version": "1.0.0", "description": "Extrae metadatos públicos de fichas de producto. No ejecuta JavaScript ni supera bloqueos de las tiendas."},
-  "servers": [{"url":"https://api-vitruko.nexode.app"}],
-  "security": [{"ApiKey":[]}],
-  "paths": {"/v1/extract":{"post":{
-    "summary":"Extraer ficha de producto", "operationId":"extractProduct",
-    "requestBody":{"required":true,"content":{"application/json":{"schema":{"type":"object","required":["url"],"additionalProperties":false,"properties":{"url":{"type":"string","format":"uri","maxLength":2048}}}}}},
-    "responses":{
-      "200":{"description":"Ficha extraída. Cuenta una petición incluso desde caché.","content":{"application/json":{"schema":{"type":"object","required":["title","description","imageUrl","url"],"properties":{"title":{"type":"string"},"description":{"type":"string"},"imageUrl":{"type":"string"},"url":{"type":"string"}}}}}},
-      "400":{"description":"URL o JSON inválido"}, "401":{"description":"Clave ausente, inválida o revocada"}, "403":{"description":"Sin permiso extract o cuenta suspendida"}, "405":{"description":"Usa POST"}, "415":{"description":"Envía application/json"}, "422":{"description":"Tienda bloqueada o ficha no accesible"}, "429":{"description":"Cuota o velocidad excedida. Respeta Retry-After"}, "503":{"description":"Servicio ocupado o renovación pendiente"}
+  "info": {
+    "title": "Vitruko API",
+    "version": "1.0.0",
+    "description": "Extrae metadatos públicos de fichas de producto. No ejecuta JavaScript ni supera bloqueos de las tiendas."
+  },
+  "servers": [
+    {
+      "url": "https://api-vitruko.nexode.app"
     }
-  }}},
-  "components":{"securitySchemes":{"ApiKey":{"type":"apiKey","in":"header","name":"X-API-Key","description":"También se admite Authorization: Bearer. Nunca envíes la clave en la URL."}}}
+  ],
+  "security": [
+    {
+      "ApiKey": []
+    }
+  ],
+  "paths": {
+    "/v1/extract": {
+      "post": {
+        "summary": "Extraer ficha de producto",
+        "operationId": "extractProduct",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "url"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "url": {
+                    "type": "string",
+                    "format": "uri",
+                    "maxLength": 2048
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Ficha extraída. Cuenta una petición incluso desde caché.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "title",
+                    "description",
+                    "imageUrl",
+                    "url"
+                  ],
+                  "properties": {
+                    "title": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "imageUrl": {
+                      "type": "string"
+                    },
+                    "url": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "URL o JSON inválido"
+          },
+          "401": {
+            "description": "Clave ausente, inválida o revocada"
+          },
+          "403": {
+            "description": "Sin permiso extract o cuenta suspendida"
+          },
+          "405": {
+            "description": "Usa POST"
+          },
+          "415": {
+            "description": "Envía application/json"
+          },
+          "422": {
+            "description": "Tienda bloqueada o ficha no accesible"
+          },
+          "429": {
+            "description": "Cuota, velocidad o límite temporal de la tienda. code=source_rate_limited identifica una restricción de la fuente, distinta de la cuota de tu cuenta. Respeta Retry-After.",
+            "headers": {
+              "Retry-After": {
+                "description": "Segundos que debes esperar antes de reintentar.",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Servicio ocupado o renovación pendiente"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "ApiKey": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-API-Key",
+        "description": "También se admite Authorization: Bearer. Nunca envíes la clave en la URL."
+      }
+    }
+  }
 }

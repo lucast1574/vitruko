@@ -7,6 +7,7 @@ import (
 	"golang.org/x/net/html/charset"
 	"io"
 	"net/http"
+	"net/url"
 	"strings"
 	"time"
 )
@@ -18,15 +19,36 @@ func Fetch(ctx context.Context, raw string) (Metadata, error) {
 	ctx, cancel := context.WithTimeout(ctx, 12*time.Second)
 	defer cancel()
 	raw = NormalizeURL(raw)
-	req := previewRequest(ctx, raw)
 	client := Client()
+	client.Transport = &politeTransport{base: client.Transport, scheduler: sharedSources}
 	defer client.CloseIdleConnections()
+	return fetchWithClient(ctx, raw, client)
+}
+func fetchWithClient(ctx context.Context, raw string, client *http.Client) (Metadata, error) {
+	page, _ := url.Parse(raw)
+	// Prefer a supported public product API before requesting the heavier HTML page.
+	primary := shopifyStorefront(ctx, client, page)
+	primary.URL = raw
+	if primary.Title != "" && primary.ImageURL != "" && primary.Description != "" {
+		return primary, nil
+	}
+	req := previewRequest(ctx, raw)
 	res, err := client.Do(req)
 	if err != nil {
+		if primary.Title != "" {
+			return primary, nil
+		}
+		var limited *SourceRateLimit
+		if errors.As(err, &limited) {
+			return Metadata{}, limited
+		}
 		return Metadata{}, errors.New("La tienda no comparte una vista previa. Completa los datos manualmente.")
 	}
 	defer res.Body.Close()
 	if res.StatusCode != 200 || !strings.Contains(res.Header.Get("Content-Type"), "text/html") {
+		if primary.Title != "" {
+			return primary, nil
+		}
 		return Metadata{}, errors.New("No pudimos leer el artículo. Puedes completar sus datos.")
 	}
 	// Read bounded HTML, including product JSON-LD placed after the head.
@@ -37,8 +59,17 @@ func Fetch(ctx context.Context, raw string) (Metadata, error) {
 	body, _ := io.ReadAll(io.LimitReader(reader, 4<<20))
 	data := Parse(bytes.NewReader(body), res.Request.URL.String())
 	if data.ImageURL == "" || !usefulTitle(data.Title, raw) {
-		if extra := storefront(ctx, client, res.Request.URL, body); extra.Title != "" {
+		if extra := vtexStorefront(ctx, client, res.Request.URL, body); extra.Title != "" {
 			data = extra
+		}
+	}
+	if primary.Title != "" {
+		data.Title = primary.Title
+		if primary.ImageURL != "" {
+			data.ImageURL = primary.ImageURL
+		}
+		if primary.Description != "" {
+			data.Description = primary.Description
 		}
 	}
 	data.URL = raw
