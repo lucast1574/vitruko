@@ -51,7 +51,6 @@ func shopifyStorefront(ctx context.Context, client *http.Client, page *url.URL) 
 					return Metadata{}
 				}
 			}
-			product.Description = plainStoreDescription(product.Description)
 			return checkedStoreMetadata(Metadata{Title: product.Title, ImageURL: product.FeaturedImage, Description: product.Description}, page)
 		}
 	}
@@ -111,12 +110,8 @@ func checkedStoreMetadata(data Metadata, page *url.URL) Metadata {
 		return Metadata{}
 	}
 	data.Title = truncate(data.Title, 240)
-	data.Description = truncate(data.Description, 1000)
-	if image, err := page.Parse(data.ImageURL); err == nil && data.ImageURL != "" && ValidURL(image.String()) {
-		data.ImageURL = image.String()
-	} else {
-		data.ImageURL = ""
-	}
+	data.Description = plainStoreDescription(data.Description)
+	data.ImageURL = checkedImageURL(page, data.ImageURL)
 	data.URL = page.String()
 	return data
 }

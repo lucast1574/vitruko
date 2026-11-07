@@ -107,13 +107,9 @@ func Parse(body io.Reader, base string) Metadata {
 		}
 	}
 	if u, err := url.Parse(base); err == nil {
-		if image, err := u.Parse(out.ImageURL); err == nil && out.ImageURL != "" && ValidURL(image.String()) {
-			out.ImageURL = image.String()
-		} else {
-			out.ImageURL = ""
-		}
+		out.ImageURL = checkedImageURL(u, out.ImageURL)
 	}
 	out.Title = truncate(out.Title, 240)
-	out.Description = truncate(out.Description, 1000)
+	out.Description = plainStoreDescription(out.Description)
 	return out
 }

@@ -46,6 +46,22 @@ func mercadoHost(host string) bool {
 	return false
 }
 
+func checkedImageURL(page *url.URL, raw string) string {
+	image, err := page.Parse(raw)
+	if err != nil || raw == "" || !ValidURL(image.String()) {
+		return ""
+	}
+	// Adafruit publishes some product images with a duplicated path separator.
+	// Its CDN returns 404 for that form and 200 for the canonical image path.
+	// Do not rewrite arbitrary CDN paths, escaped paths, or signed query strings.
+	if strings.EqualFold(image.Hostname(), "cdn-shop.adafruit.com") && image.RawQuery == "" && image.RawPath == "" {
+		for strings.Contains(image.Path, "//") {
+			image.Path = strings.ReplaceAll(image.Path, "//", "/")
+		}
+	}
+	return image.String()
+}
+
 // A login, search or storefront title is not the name of the requested gift.
 func usefulTitle(title, raw string) bool {
 	title = strings.ToLower(strings.TrimSpace(title))

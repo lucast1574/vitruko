@@ -29,3 +29,14 @@ Las pruebas DOM no simulan la capa superior de un dialog nativo. Comprobar los s
 Los tests protegen persistencia de perfil y cierre de sesión, permisos por cuenta, suspensión/restauración, límites de claves, cuotas concurrentes, velocidad compartida, planes ilimitados, administración sin alterar Stripe, firma/reconciliación de webhooks y uso único de tokens de recuperación. Los tests específicos de cada API cubren proveedores, normalización, caché y validación de destinos.
 
 Conservar el borrador cuando falla una operación y mostrar el error real. Una petición correcta seguida de una recarga fallida debe comunicar el fallo de recarga; no anunciar una actualización verificada.
+
+## Límite temporal de una tienda: prueba en navegador
+
+Con el frontend compilado, ejecutar `node web/scripts/cooldown-fixture.mjs` desde la raíz del repositorio. El script imprime una URL de localhost y solo escucha en 127.0.0.1. Abrirla en un navegador real: usa una cuenta y respuestas sintéticas y nunca contacta tiendas.
+
+- Escribir `fixture-key` y `https://limited-store.example/products/cup`. Al enviar, el botón debe mostrar una espera de cuatro segundos y quedar deshabilitado.
+- Cambiar el enlace a `https://available-store.example/products/cup`. El botón debe habilitarse sin esperar al otro dominio y devolver Fixture product.
+- Volver al dominio limitado, enviar y esperar: el botón debe habilitarse al terminar la cuenta atrás.
+- Cerrar el servidor al terminar. Este fixture no es una API pública ni debe publicarse.
+
+Las pruebas de backend verifican por separado que Retry-After impide contactos a la tienda durante la espera, que las consultas simultáneas del mismo producto comparten una única extracción y que desconectar un cliente no cancela el trabajo de otros.

@@ -27,6 +27,25 @@ func TestSharedMercadoLinksKeepSelectedItem(t *testing.T) {
 		t.Fatal("hostname boundary")
 	}
 }
+
+func TestAdafruitImageRepairIsScopedAndDescriptionsArePlainText(t *testing.T) {
+	page, _ := url.Parse("https://www.adafruit.com/product/5812")
+	cases := map[string]string{
+		"https://cdn-shop.adafruit.com//970x728/5812-01.jpg":            "https://cdn-shop.adafruit.com/970x728/5812-01.jpg",
+		"https://other.example//signed/path.jpg":                        "https://other.example//signed/path.jpg",
+		"https://cdn-shop.adafruit.com//970x728/5812.jpg?signature=abc": "https://cdn-shop.adafruit.com//970x728/5812.jpg?signature=abc",
+		"https://127.0.0.1/private.jpg":                                 "",
+	}
+	for raw, want := range cases {
+		if got := checkedImageURL(page, raw); got != want {
+			t.Fatal(raw, got, want)
+		}
+	}
+	data := Parse(strings.NewReader(`<title>Board</title><meta property="og:image" content="https://cdn-shop.adafruit.com//970x728/5812-01.jpg"><meta name="description" content="Raspberry Pi 5&amp;nbsp;computer">`), page.String())
+	if data.ImageURL != cases["https://cdn-shop.adafruit.com//970x728/5812-01.jpg"] || data.Description != "Raspberry Pi 5 computer" {
+		t.Fatal(data)
+	}
+}
 func TestProductDataInBodyAndPrimaryImage(t *testing.T) {
 	source := `<head><meta property="og:image" content="/logo.png"></head><body><script type="application/ld+json">{"@type":"WebPage","mainEntity":{"@type":"Product","name":"Cafetera","image":{"contentUrl":"/coffee.jpg"}}}</script>`
 	m := Parse(strings.NewReader(source), "https://shop.example/p")
