@@ -12,7 +12,7 @@ export default function Docs({
         </div>
         <a
           className="text-link"
-          href="https://api-vitruko.nexode.app/openapi.json"
+          href="https://api.vitruko.lat/openapi.json"
           target="_blank"
           rel="noreferrer"
         >
@@ -22,12 +22,12 @@ export default function Docs({
       <section className="docs-auth">
         <h2>Extraer un producto</h2>
         <p>
-          Base URL: <code>https://api-vitruko.nexode.app</code>. Envía{" "}
+          Base URL: <code>https://api.vitruko.lat</code>. Envía{" "}
           <code>POST /v1/extract</code>, un cuerpo JSON con <code>url</code> y
           tu clave en <code>X-API-Key</code>. También se admite{" "}
           <code>Authorization: Bearer TU_API_KEY</code>.
         </p>
-        <pre>{`curl "https://api-vitruko.nexode.app/v1/extract" \\
+        <pre>{`curl "https://api.vitruko.lat/v1/extract" \\
   -H "X-API-Key: TU_API_KEY" \\
   -H "Content-Type: application/json" \\
   -d '{"url":"https://tienda.com/products/articulo"}'`}</pre>

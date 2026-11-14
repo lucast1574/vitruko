@@ -1,4 +1,4 @@
-export const siteOrigin = "https://vitruko.nexode.app";
+export const siteOrigin = "https://vitruko.lat";
 export const pages = {
   "/": {
     title: "Vitruko | API de extracción de productos y enlaces",
@@ -26,7 +26,7 @@ export const pages = {
       "Extrae nombre, marca, galería, precio y disponibilidad publicados por tiendas en una ficha JSON con calidad y procedencia.",
     scope: "extract",
     operation: "extract",
-    code: 'curl "https://api-vitruko.nexode.app/v1/extract" \\\n  -H "X-API-Key: TU_API_KEY" \\\n  -H "Content-Type: application/json" \\\n  -d \'{"url":"https://tienda.com/products/articulo"}\'',
+    code: 'curl "https://api.vitruko.lat/v1/extract" \\\n  -H "X-API-Key: TU_API_KEY" \\\n  -H "Content-Type: application/json" \\\n  -d \'{"url":"https://tienda.com/products/articulo"}\'',
     sections: [
       {
         title: "Un contrato para tu interfaz",
@@ -56,7 +56,7 @@ export const pages = {
       "Muestra una vista previa del producto con la información pública de la tienda y conserva el enlace original normalizado.",
     scope: "extract",
     operation: "extract",
-    code: 'curl "https://api-vitruko.nexode.app/v1/extract" \\\n  -H "X-API-Key: TU_API_KEY" \\\n  -H "Content-Type: application/json" \\\n  -d \'{"url":"https://tienda.com/products/articulo"}\'',
+    code: 'curl "https://api.vitruko.lat/v1/extract" \\\n  -H "X-API-Key: TU_API_KEY" \\\n  -H "Content-Type: application/json" \\\n  -d \'{"url":"https://tienda.com/products/articulo"}\'',
     sections: [
       {
         title: "De la URL a una vista legible",
@@ -86,7 +86,7 @@ export const pages = {
       "Conecta fichas públicas de distintas plataformas sin mantener un contrato diferente por tienda.",
     scope: "extract",
     operation: "extract",
-    code: 'curl "https://api-vitruko.nexode.app/v1/extract" \\\n  -H "X-API-Key: TU_API_KEY" \\\n  -H "Content-Type: application/json" \\\n  -d \'{"url":"https://tienda.com/products/articulo"}\'',
+    code: 'curl "https://api.vitruko.lat/v1/extract" \\\n  -H "X-API-Key: TU_API_KEY" \\\n  -H "Content-Type: application/json" \\\n  -d \'{"url":"https://tienda.com/products/articulo"}\'',
     sections: [
       {
         title: "Primero, la información de la página",

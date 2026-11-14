@@ -75,11 +75,11 @@ func fetchWithClient(ctx context.Context, raw string, client *http.Client) (Meta
 
 func previewRequest(ctx context.Context, raw string) *http.Request {
 	req, _ := http.NewRequestWithContext(ctx, http.MethodGet, raw, nil)
-	agent := "Vitruko/1.0 (+https://vitruko.nexode.app; product preview)"
+	agent := "Vitruko/1.0 (+https://vitruko.lat; product preview)"
 	// Mercado Libre serves product Open Graph through its share-preview profile.
 	// Keep Vitruko identified; no account cookies or private API are involved.
 	if mercadoHost(req.URL.Hostname()) {
-		agent = "WhatsApp/2.24.7.81 Vitruko/1.0 (+https://vitruko.nexode.app; product link preview)"
+		agent = "WhatsApp/2.24.7.81 Vitruko/1.0 (+https://vitruko.lat; product link preview)"
 	}
 	req.Header.Set("User-Agent", agent)
 	req.Header.Set("Accept", "text/html")

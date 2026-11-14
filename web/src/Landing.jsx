@@ -272,7 +272,7 @@ export default function Landing() {
           <div className="process-content" data-ui>
             <div className="request-slip">
               <h3>Tu petición</h3>
-              <pre>{`fetch("https://api-vitruko.nexode.app/v1/extract", {
+              <pre>{`fetch("https://api.vitruko.lat/v1/extract", {
   method: "POST",
   headers: {
     "X-API-Key": "TU_API_KEY",

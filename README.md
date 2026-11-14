@@ -16,6 +16,6 @@ Database tests require TEST_DATABASE_URL pointing at a disposable database named
 
 ## Public URLs
 
-Landing https://vitruko.nexode.app · Console https://app-vitruko.nexode.app · API https://api-vitruko.nexode.app
+Landing https://vitruko.lat · Console https://app.vitruko.lat · API https://api.vitruko.lat
 
 Six prerendered public pages, canonical URLs, Open Graph images, structured data, sitemap and robots. Private console/auth routes use noindex; missing pages return 404. The animated brand entrance runs once per tab, respects reduced motion and never gates the rendered content.

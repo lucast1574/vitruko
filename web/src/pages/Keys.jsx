@@ -139,7 +139,7 @@ export default function Keys() {
       )}
       <div className="code-guide">
         <h2>Así se conecta</h2>
-        <pre>{`curl "https://api-vitruko.nexode.app/v1/extract" \\\n  -H "X-API-Key: TU_API_KEY" \\\n  -H "Content-Type: application/json" \\\n  -d '{"url":"https://tienda.com/products/articulo"}'`}</pre>
+        <pre>{`curl "https://api.vitruko.lat/v1/extract" \\\n  -H "X-API-Key: TU_API_KEY" \\\n  -H "Content-Type: application/json" \\\n  -d '{"url":"https://tienda.com/products/articulo"}'`}</pre>
         <p>
           También puedes enviar <code>Authorization: Bearer TU_API_KEY</code>.
           Las claves revocadas dejan de aceptar nuevas peticiones.

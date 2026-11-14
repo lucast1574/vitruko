@@ -143,7 +143,7 @@ func readStoreJSON(ctx context.Context, client *http.Client, raw string, dst any
 		return false
 	}
 	req, _ := http.NewRequestWithContext(ctx, http.MethodGet, raw, nil)
-	req.Header.Set("User-Agent", "Vitruko/1.0 (+https://vitruko.nexode.app; product preview)")
+	req.Header.Set("User-Agent", "Vitruko/1.0 (+https://vitruko.lat; product preview)")
 	req.Header.Set("Accept", "application/json")
 	res, err := client.Do(req)
 	if err != nil {

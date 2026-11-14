@@ -7,7 +7,7 @@
   },
   "servers": [
     {
-      "url": "https://api-vitruko.nexode.app"
+      "url": "https://api.vitruko.lat"
     }
   ],
   "security": [

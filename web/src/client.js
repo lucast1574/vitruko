@@ -26,8 +26,8 @@ export async function api(path, method = "GET", body, headers = {}, signal) {
   return data;
 }
 const localDevelopment = import.meta.env?.DEV && typeof location !== "undefined";
-export const appURL = localDevelopment ? "" : "https://app-vitruko.nexode.app";
-export const siteURL = localDevelopment ? "" : "https://vitruko.nexode.app";
+export const appURL = localDevelopment ? "" : "https://app.vitruko.lat";
+export const siteURL = localDevelopment ? "" : "https://vitruko.lat";
 export const number = (value) =>
   new Intl.NumberFormat("es-PE").format(value || 0);
 export const date = (value) =>

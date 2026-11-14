@@ -61,14 +61,14 @@ func Handler() http.Handler {
 		if strings.HasSuffix(urlPath, "/index.html") {
 			urlPath = strings.TrimSuffix(urlPath, "/index.html")
 		}
-		if r.URL.Path == "/" && host == "app-vitruko.nexode.app" {
+		if r.URL.Path == "/" && host == "app.vitruko.lat" {
 			w.Header().Set("X-Robots-Tag", "noindex, nofollow")
 			http.Redirect(w, r, "/app", http.StatusTemporaryRedirect)
 			return
 		}
 		if file, ok := pages[urlPath]; ok {
-			if host == "api-vitruko.nexode.app" || host == "app-vitruko.nexode.app" {
-				http.Redirect(w, r, "https://vitruko.nexode.app"+urlPath, http.StatusPermanentRedirect)
+			if host == "api.vitruko.lat" || host == "app.vitruko.lat" {
+				http.Redirect(w, r, "https://vitruko.lat"+urlPath, http.StatusPermanentRedirect)
 				return
 			}
 			if r.URL.Path != urlPath {
@@ -82,8 +82,8 @@ func Handler() http.Handler {
 			serveHTML(w, r, file, 200)
 			return
 		}
-		if urlPath == "/sitemap.xml" && (host == "api-vitruko.nexode.app" || host == "app-vitruko.nexode.app") {
-			http.Redirect(w, r, "https://vitruko.nexode.app/sitemap.xml", http.StatusPermanentRedirect)
+		if urlPath == "/sitemap.xml" && (host == "api.vitruko.lat" || host == "app.vitruko.lat") {
+			http.Redirect(w, r, "https://vitruko.lat/sitemap.xml", http.StatusPermanentRedirect)
 			return
 		}
 		clean := strings.TrimPrefix(urlPath, "/")
