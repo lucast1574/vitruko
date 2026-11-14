@@ -123,7 +123,7 @@ func (v *googleVerifier) verify(ctx context.Context, raw, project string) (googl
 func (p *Platform) providers(w http.ResponseWriter, r *http.Request) {
 	var google any
 	if p.config.FirebaseProjectID != "" && p.config.FirebaseAPIKey != "" && p.config.FirebaseAppID != "" {
-		google = map[string]string{"projectId": p.config.FirebaseProjectID, "apiKey": p.config.FirebaseAPIKey, "authDomain": p.config.FirebaseProjectID + ".firebaseapp.com", "appId": p.config.FirebaseAppID}
+		google = map[string]string{"projectId": p.config.FirebaseProjectID, "apiKey": p.config.FirebaseAPIKey, "authDomain": p.googleAuthDomain(), "appId": p.config.FirebaseAppID}
 	}
 	reply(w, 200, map[string]any{"google": google})
 }

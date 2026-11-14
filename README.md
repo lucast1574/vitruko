@@ -1,5 +1,9 @@
 # Vitruko
 
+## Google Login con dominio propio
+
+Configura `FIREBASE_PROJECT_ID`, `FIREBASE_API_KEY` y `FIREBASE_APP_ID`. El hostname HTTPS de `SITE_URL` (`vitruko.lat`) se publica como `authDomain`; sin un sitio HTTPS válido se conserva el dominio predeterminado del proyecto. El servidor sirve `/__/auth/*` mediante un proxy al proyecto Firebase y elimina las cookies y credenciales locales de la solicitud saliente. Autoriza los dominios públicos en Firebase y registra `https://vitruko.lat/__/auth/handler` en el cliente OAuth, junto con los orígenes HTTPS de la web y del panel.
+
 Go API + React/Vite console for public product metadata, extracted from The Date linkpreview implementation. Own PostgreSQL, account sessions, API keys, quotas and Nexode Stripe products. No geography dependencies.
 
 ## API

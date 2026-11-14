@@ -59,6 +59,7 @@ func (p *Platform) private(fn http.HandlerFunc, admin bool) http.HandlerFunc {
 }
 func (p *Platform) Handler() http.Handler {
 	mux := http.NewServeMux()
+	authProxy := newFirebaseAuthProxy(p.config.FirebaseProjectID)
 	mux.HandleFunc("POST /console/signup", p.signup)
 	mux.HandleFunc("POST /console/login", p.login)
 	mux.HandleFunc("GET /console/auth/providers", p.providers)
@@ -75,6 +76,11 @@ func (p *Platform) Handler() http.Handler {
 	}
 	mux.HandleFunc("POST /stripe/webhook", p.webhook)
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Firebase helpers must retain their upstream headers and execute on our auth domain.
+		if strings.HasPrefix(r.URL.Path, "/__/auth/") {
+			authProxy.ServeHTTP(w, r)
+			return
+		}
 		if strings.HasPrefix(r.URL.Path, "/console/") || strings.HasPrefix(r.URL.Path, "/v1/") || strings.HasPrefix(r.URL.Path, "/map/") || r.URL.Path == "/stripe/webhook" || r.URL.Path == "/health" || r.URL.Path == "/openapi.json" || apiEndpoint(r.URL.Path) != "" {
 			w.Header().Set("X-Robots-Tag", "noindex, nofollow, noarchive")
 		}
@@ -86,7 +92,7 @@ func (p *Platform) Handler() http.Handler {
 		}
 		if r.URL.Path == "/login" || r.URL.Path == "/signup" {
 			w.Header().Set("Cross-Origin-Opener-Policy", "same-origin-allow-popups")
-			w.Header().Set("Content-Security-Policy", "default-src 'self'; script-src 'self' https://apis.google.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.googleusercontent.com; font-src 'self'; connect-src 'self' https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.googleapis.com; frame-src https://"+p.config.FirebaseProjectID+".firebaseapp.com https://accounts.google.com; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'")
+			w.Header().Set("Content-Security-Policy", "default-src 'self'; script-src 'self' https://apis.google.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.googleusercontent.com; font-src 'self'; connect-src 'self' https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.googleapis.com; frame-src 'self' https://"+p.googleAuthDomain()+" https://accounts.google.com; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'")
 		}
 		if strings.HasPrefix(r.URL.Path, "/console/") {
 			if origin := r.Header.Get("Origin"); origin != "" {
