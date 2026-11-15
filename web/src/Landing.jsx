@@ -1,6 +1,6 @@
-import { McpPromo, AssistantLinks } from "./public/McpPage";
-import React, { useEffect, useRef, useState } from "react";
-import { ArrowRight, ArrowUpRight, Check } from "lucide-react";
+import { McpPromo } from "./public/McpPage";
+import React, { useEffect, useRef } from "react";
+import { ArrowRight, ArrowUpRight, Check, Link2 } from "lucide-react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Logo } from "./ui";
@@ -9,26 +9,6 @@ import { useData } from "./useData";
 import BrandArrival, { createBrandArrival } from "./BrandArrival";
 import { ResourceLinks } from "./public/PublicPage";
 
-const examples = [
-  {
-    title: "Taza de cerámica",
-    description: "Una pausa, bien servida. Cerámica esmaltada de 300 ml.",
-    imageUrl: "/objects/cup.svg",
-    url: "https://tienda.example/products/taza?variant=natural",
-  },
-  {
-    title: "Lámpara de mesa",
-    description: "Luz para tus ideas. Pantalla de metal y base de madera.",
-    imageUrl: "/objects/lamp.svg",
-    url: "https://tienda.example/products/lampara",
-  },
-  {
-    title: "Bolso de lona",
-    description: "Lo esencial, contigo. Algodón resistente con asas largas.",
-    imageUrl: "/objects/bag.svg",
-    url: "https://tienda.example/products/bolso",
-  },
-];
 const faqs = [
   [
     "¿Funciona con cualquier tienda?",
@@ -52,10 +32,8 @@ const faqs = [
   ],
 ];
 export default function Landing() {
-  const root = useRef(null),
-    [selected, setSelected] = useState(0);
+  const root = useRef(null);
   const { data } = useData("/console/plans");
-  const item = examples[selected];
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
     const media = gsap.matchMedia();
@@ -136,95 +114,23 @@ export default function Landing() {
                 <br />a producto.
               </h1>
               <p className="hero-lead">
-                Convierte enlaces de tiendas en fichas listas para tu app.
-                Nombre, imágenes, marca, precio y disponibilidad, cuando la tienda
-                los publica.
+                De un enlace de tienda a una ficha lista para tu app.
               </p>
             </div>
             <div className="hero-cta">
               <a className="button" href={`${appURL}/signup`}>
-                Crea tu API key <ArrowRight size={18} />
+                Empieza gratis <ArrowRight size={18} />
               </a>
               <span>
-                1.000 peticiones al mes, gratis.
-                <br />
-                Sin tarjeta para empezar.
+                Sin tarjeta.
               </span>
             </div>
-            <AssistantLinks />
           </div>
-          <div className="v-showcase" data-ui>
-            <div className="shop-window">
-              <div className="window-top">
-                <span>Una ficha de ejemplo</span>
-                <span>Vitruko studio</span>
-              </div>
-              <div className="v-object">
-                <img
-                  src={item.imageUrl}
-                  width="520"
-                  height="420"
-                  alt={item.title}
-                />
-              </div>
-              <div className="shop-caption">
-                <strong>{item.title}</strong>
-                <div
-                  className="object-tabs"
-                  role="tablist"
-                  aria-label="Elegir producto de ejemplo"
-                  onKeyDown={(e) => {
-                    const direction =
-                      e.key === "ArrowRight"
-                        ? 1
-                        : e.key === "ArrowLeft"
-                          ? -1
-                          : 0;
-                    if (direction) {
-                      e.preventDefault();
-                      const next =
-                        (selected + direction + examples.length) %
-                        examples.length;
-                      setSelected(next);
-                      e.currentTarget.querySelectorAll("button")[next].focus();
-                    }
-                  }}
-                >
-                  {examples.map((e, i) => (
-                    <button
-                      key={e.title}
-                      role="tab"
-                      tabIndex={selected === i ? 0 : -1}
-                      aria-selected={selected === i}
-                      onClick={() => {
-                        setSelected(i);
-                        }}
-                    >
-                      {["Taza", "Lámpara", "Bolso"][i]}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-            <div className="data-sheet" aria-live="polite">
-              <div className="sheet-top">
-                <span>De enlace a ficha</span>
-                <Check size={18} aria-hidden="true" />
-              </div>
-              <div className="sheet-product">
-                <span className="sheet-brand">Vitruko studio</span>
-                <h2>{item.title}</h2>
-                <p>{item.description}</p>
-              </div>
-              <dl className="sheet-fields">
-                <div><dt>Imagen del producto</dt><dd>Lista para mostrar</dd></div>
-                <div><dt>Enlace de origen</dt><dd>tienda.example</dd></div>
-              </dl>
-              <p className="sheet-context">También puedes obtener galería, precio y disponibilidad cuando la tienda los publica.</p>
-              <a className="sheet-docs" href="/documentacion">Ver la respuesta de la API <ArrowUpRight size={17} /></a>
-              <div className="sheet-bottom"><span>Ficha ilustrativa</span><span>Tu interfaz, tus reglas.</span></div>
-            </div>
-          </div>
+          <figure className="v-showcase" data-ui>
+            <div className="hero-source"><Link2 size={16} aria-hidden="true" /><span>tienda.example/producto</span></div>
+            <div className="v-object"><img src="/objects/cup.svg" width="520" height="420" alt="Taza de cerámica de ejemplo" /></div>
+            <figcaption className="hero-product-caption"><div><span>Ficha de ejemplo</span><strong>Taza de cerámica</strong></div><Check size={22} aria-label="Ficha lista" /></figcaption>
+          </figure>
         </section>
         <section className="v-statement v-reveal" id="producto">
           <h2>
