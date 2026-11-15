@@ -132,6 +132,7 @@ export default function Landing() {
             <figcaption className="hero-product-caption"><div><span>Ficha de ejemplo</span><strong>Taza de cerámica</strong></div><Check size={22} aria-label="Ficha lista" /></figcaption>
           </figure>
         </section>
+        <McpPromo />
         <section className="v-statement v-reveal" id="producto">
           <h2>
             La ficha.
@@ -256,7 +257,6 @@ export default function Landing() {
             </div>
           </div>
         </section>
-        <McpPromo />
         <section className="v-plans v-reveal" id="planes">
           <h2>Crece por peticiones.</h2>
           <p>Tres planes. Sin créditos que descifrar.</p>
