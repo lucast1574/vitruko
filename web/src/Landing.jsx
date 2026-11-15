@@ -12,11 +12,11 @@ import { ResourceLinks } from "./public/PublicPage";
 const faqs = [
   [
     "¿Funciona con cualquier tienda?",
-    "Puedes enviar una URL HTTPS pública. La extracción depende de los datos que publique la tienda: Open Graph, JSON-LD, microdatos y las fuentes públicas compatibles de Shopify y VTEX. Si exige iniciar sesión, bloquea la consulta o solo genera la ficha con JavaScript, puede devolver HTTP 422. No prometemos cobertura universal.",
+    "Funciona con enlaces públicos de productos y depende de la información que comparta la tienda. Algunas páginas pueden impedir la consulta o necesitar que inicies sesión. Consulta las guías para conocer las fuentes compatibles y sus límites.",
   ],
   [
     "¿Qué información devuelve?",
-    "Nombre, descripción, marca, galería, enlace normalizado, precio con moneda y disponibilidad cuando la fuente los publica. quality indica los datos faltantes y el origen de cada campo. Sin precio y moneda identificables, price es null; nunca inventamos el dato.",
+    "Nombre, descripción, marca, imágenes, enlace, precio con moneda y disponibilidad cuando la tienda los publica. Vitruko señala los datos que faltan y su procedencia. Si no encuentra un precio con su moneda, lo deja sin completar.",
   ],
   [
     "¿Qué cuenta como una petición?",
@@ -158,25 +158,20 @@ export default function Landing() {
               Tu interfaz sale.
             </h2>
             <p>
-              El mismo contrato para diferentes tiendas. Conserva los
-              identificadores de variante y lee los datos que la página
-              comparte.
+              Un enlace de una tienda, listo para convertirse en parte de tu
+              producto. De los favoritos de alguien a su próxima lista de regalos.
             </p>
           </div>
           <div className="process-content" data-ui>
             <div className="request-slip">
-              <h3>Tu petición</h3>
-              <pre>{`fetch("https://api.vitruko.lat/v1/extract", {
-  method: "POST",
-  headers: {
-    "X-API-Key": "TU_API_KEY",
-    "Content-Type": "application/json"
-  },
-  body: JSON.stringify({ url: enlace })
-})`}</pre>
-              <a href="/documentacion">
-                Ver parámetros y errores <ArrowUpRight size={16} />
-              </a>
+              <h3>Un enlace que vale la pena guardar.</h3>
+              <div className="link-preview-demo" aria-label="Ejemplo ilustrativo de un enlace de producto">
+                <Link2 size={24} aria-hidden="true" />
+                <span>tienda.example/mi-producto</span>
+                <Check size={19} aria-hidden="true" />
+              </div>
+              <p className="link-preview-copy">Deja que la ficha se complete con el nombre, las imágenes y los datos que publica la tienda.</p>
+              <a href="/documentacion">Conoce cómo integrarlo <ArrowUpRight size={16} /></a>
             </div>
             <div className="result-slip">
               <h3>Tu siguiente pantalla</h3>
@@ -194,9 +189,9 @@ export default function Landing() {
                 </div>
               </div>
               <p>
-                Asigna <code>title</code>, <code>imageUrl</code>,{" "}
-                <code>description</code> y <code>url</code> a tus componentes. Añade galería, marca, precio y disponibilidad cuando estén publicados; quality indica qué falta y el origen de cada campo.
-                Tú decides qué construir.
+                Nombre, imágenes y descripción, listos para tu siguiente pantalla.
+                Añade precio y disponibilidad cuando la tienda los comparte y
+                revisa los datos que falten antes de guardar la ficha.
               </p>
             </div>
           </div>
@@ -210,7 +205,7 @@ export default function Landing() {
           <div className="source-list">
             <p>
               <strong>Datos de la página</strong>
-              <span>Open Graph, JSON-LD de producto y microdatos.</span>
+              <span>La información pública que la tienda comparte sobre el producto.</span>
             </p>
             <p>
               <strong>Shopify y VTEX</strong>
@@ -222,8 +217,7 @@ export default function Landing() {
             </p>
           </div>
           <p className="support-note">
-            La disponibilidad depende de cada tienda. No ejecutamos JavaScript
-            ni accedemos a contenido privado.
+            La disponibilidad depende de lo que cada tienda publique. Solo trabajamos con información pública.
           </p>
         </section>
         <section className="v-account v-reveal">

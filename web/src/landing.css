@@ -651,3 +651,8 @@
  .v-showcase{max-width:900px;width:100%;min-height:460px}
  .v-object img{height:280px}
 }
+
+.link-preview-demo {display:flex;align-items:center;gap:12px;min-width:0;padding:22px 16px;margin:28px 0;background:var(--surface);border-radius:12px;font-size:14px;color:var(--accent);}
+.link-preview-demo span {min-width:0;overflow-wrap:anywhere;flex:1;}
+.link-preview-demo svg {flex-shrink:0;}
+.link-preview-copy {font-size:17px;line-height:1.6;max-width:35ch;color:var(--muted);}
