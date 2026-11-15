@@ -11,6 +11,7 @@ COPY go.mod go.sum ./
 RUN go mod download
 COPY . .
 COPY --from=frontend /app/web/dist ./web/dist
+COPY --from=frontend /app/internal/platform/mailtemplates ./internal/platform/mailtemplates
 RUN CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o /out/vitruko ./cmd/api
 
 FROM alpine:3.23

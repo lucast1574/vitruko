@@ -7,9 +7,9 @@ export const pages = {
     navTitle: "MCP para IA",
   },
   "/": {
-    title: "Vitruko | API de extracción de productos y enlaces",
+    title: "API de productos: extracción de datos de tiendas | Vitruko",
     description:
-      "Convierte enlaces de tiendas en fichas de producto JSON. Marca, galería, precio, disponibilidad y calidad de datos con API keys, cuotas y panel. Empieza con 1.000 peticiones gratis.",
+      "Convierte enlaces de tiendas en fichas JSON con nombre, imágenes, precio y disponibilidad publicados. Integra Vitruko con 1.000 peticiones gratis al mes.",
   },
   "/documentacion": {
     title: "Documentación de la API de productos | Vitruko",
@@ -113,6 +113,64 @@ export const pages = {
     ],
   },
 };
+Object.assign(pages, {
+  "/api-precios-productos": {
+    "title": "API para extraer precios de productos y moneda | Vitruko",
+    "description": "Obtén precio y moneda publicados en una página de producto con Vitruko. Respuesta JSON, disponibilidad y procedencia, sin inventar los datos ausentes.",
+    "heading": "El precio, con su contexto.",
+    "navTitle": "Precios de productos",
+    "summary": "Integra el precio publicado, su moneda y la disponibilidad de una página de producto, con indicadores de calidad para decidir cómo mostrarlo.",
+    "scope": "extract",
+    "operation": "extract",
+    "code": "curl \"https://api.vitruko.lat/v1/extract\" \\\n  -H \"X-API-Key: TU_API_KEY\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"url\":\"https://tienda.com/products/articulo\"}'",
+    "sections": [
+      {
+        "title": "Precio y moneda forman un dato",
+        "text": "Vitruko devuelve price con amount como string decimal en unidades principales y currency como código de tres letras cuando ambos están publicados y corresponden a una oferta identificable. No basta con encontrar un símbolo de moneda. Si falta una parte, price es null. Así puedes distinguir un precio utilizable de una cifra sin contexto."
+      },
+      {
+        "title": "Variantes, ofertas y disponibilidad",
+        "text": "Una página puede publicar varias variantes o un rango de precios. El extractor evita presentar una oferta arbitraria como un importe único. availability normaliza el estado publicado y puede ser unknown. Ni el precio extraído ni el stock representan una garantía de compra: el usuario debe comprobar los datos vigentes en la tienda."
+      },
+      {
+        "title": "Procedencia antes de automatizar",
+        "text": "Consulta quality.fieldSources y quality.missingFields junto con quality.extractedAt. Los metadatos públicos de producto, como JSON-LD, tienen prioridad sobre datos genéricos cuando son identificables. Los resultados pueden estar en caché hasta cinco minutos; no presentes la extracción como una comprobación de precio en tiempo real."
+      },
+      {
+        "title": "Una integración, no un monitor automático",
+        "text": "Envía POST /v1/extract desde tu servidor con una URL HTTPS pública y una clave con permiso extract. La API procesa una página por petición: no programa rastreos, no ejecuta JavaScript y no evita bloqueos o protecciones de la fuente. Respeta las condiciones de cada sitio y maneja los errores antes de reintentar."
+      }
+    ]
+  },
+  "/api-listas-regalos": {
+    "title": "API de productos para listas de regalos y favoritos | Vitruko",
+    "description": "Crea listas de regalos y favoritos a partir de enlaces de tiendas. Vitruko devuelve nombre, galería, precio y disponibilidad en una ficha JSON.",
+    "heading": "De un enlace a un regalo guardado.",
+    "navTitle": "Listas de regalos y favoritos",
+    "summary": "Permite que una persona pegue un enlace y revisa una ficha de producto antes de guardarla en su lista de regalos, favoritos o colección.",
+    "scope": "extract",
+    "operation": "extract",
+    "code": "curl \"https://api.vitruko.lat/v1/extract\" \\\n  -H \"X-API-Key: TU_API_KEY\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"url\":\"https://tienda.com/products/articulo\"}'",
+    "sections": [
+      {
+        "title": "Un flujo sencillo para quien guarda",
+        "text": "Recibe el enlace del usuario, consulta Vitruko desde tu backend y muestra nombre, descripción e imagen para que los revise. Cuando la fuente los publica, añade marca, galería, precio con moneda y disponibilidad. Mantén la posibilidad de editar la ficha: no todas las tiendas exponen los mismos metadatos."
+      },
+      {
+        "title": "Datos que tu interfaz puede explicar",
+        "text": "Si falta la imagen, utiliza un estado vacío que permita continuar. Si price es null, no lo conviertas en cero. Si availability es unknown, indica que debe consultarse en la tienda. Los indicadores de calidad y sus fuentes ayudan a decidir qué campos mostrar sin convertir una ausencia en información inventada."
+      },
+      {
+        "title": "Conserva el enlace de origen",
+        "text": "Guarda la URL y la fecha de extracción junto con los campos que necesitas. Las imágenes se entregan como enlaces públicos y permanecen en el servidor de la tienda; Vitruko no descarga ni almacena esos archivos. La ficha puede quedar desactualizada si cambian el artículo, la oferta o su disponibilidad."
+      },
+      {
+        "title": "Desde tu aplicación o tu asistente",
+        "text": "Integra la API REST con tu clave privada o utiliza el MCP de Vitruko para consultar la documentación y probar una extracción desde Claude Code o Codex. El MCP usa los mismos permisos y cuota. Nunca incluyas credenciales, enlaces privados o datos personales sensibles dentro de la URL del producto."
+      }
+    ]
+  }
+});
 export const guides = Object.entries(pages).filter(
   ([, page]) => page.operation,
 );

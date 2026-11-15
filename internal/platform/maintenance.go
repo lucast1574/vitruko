@@ -7,6 +7,7 @@ import (
 )
 
 func (p *Platform) Maintain(ctx context.Context) {
+	go p.maintainMail(ctx)
 	ticker := time.NewTicker(5 * time.Minute)
 	defer ticker.Stop()
 	for {
@@ -19,7 +20,7 @@ func (p *Platform) Maintain(ctx context.Context) {
 	}
 }
 func (p *Platform) maintainOnce(ctx context.Context) {
-	for _, query := range []string{"DELETE FROM sessions WHERE expires_at<now()", "DELETE FROM reset_tokens WHERE expires_at<now()", "DELETE FROM auth_attempts WHERE window_start<now()-interval '2 days'", "DELETE FROM rate_buckets WHERE minute<now()-interval '2 days'", "DELETE FROM usage_events WHERE created_at<now()-interval '180 days'"} {
+	for _, query := range []string{"UPDATE notification_outbox SET failed_at=now(),payload='{}'::jsonb WHERE sent_at IS NULL AND failed_at IS NULL AND created_at<now()-interval '23 hours'", "DELETE FROM notification_outbox WHERE created_at<now()-interval '30 days'", "DELETE FROM sessions WHERE expires_at<now()", "DELETE FROM reset_tokens WHERE expires_at<now()", "DELETE FROM auth_attempts WHERE window_start<now()-interval '2 days'", "DELETE FROM rate_buckets WHERE minute<now()-interval '2 days'", "DELETE FROM usage_events WHERE created_at<now()-interval '180 days'"} {
 		_, _ = p.db.ExecContext(ctx, query)
 	}
 	rows, err := p.db.QueryContext(ctx, "SELECT id FROM users WHERE customer_id IS NOT NULL AND subscription_status IN ('active','trialing','past_due') ORDER BY billing_end LIMIT 1000")

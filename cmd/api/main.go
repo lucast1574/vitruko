@@ -35,7 +35,7 @@ func main() {
 		}
 	})
 	startup, cancelStartup := context.WithTimeout(context.Background(), 30*time.Second)
-	app, err := platform.New(startup, platform.Config{DatabaseURL: os.Getenv("DATABASE_URL"), FirebaseProjectID: os.Getenv("FIREBASE_PROJECT_ID"), FirebaseAPIKey: os.Getenv("FIREBASE_API_KEY"), FirebaseAppID: os.Getenv("FIREBASE_APP_ID"), AdminEmail: os.Getenv("ADMIN_EMAIL"), AdminPassword: os.Getenv("ADMIN_PASSWORD"), AppURL: os.Getenv("APP_URL"), SiteURL: os.Getenv("SITE_URL"), StripeKey: os.Getenv("STRIPE_SECRET_KEY"), StripeWebhookSecret: os.Getenv("STRIPE_WEBHOOK_SECRET"), StripePortalConfig: os.Getenv("STRIPE_PORTAL_CONFIG"), StripePrices: map[string]string{"launch": os.Getenv("STRIPE_PRICE_LAUNCH"), "scale": os.Getenv("STRIPE_PRICE_SCALE")}, ResendKey: os.Getenv("RESEND_API_KEY"), MailFrom: os.Getenv("MAIL_FROM")}, combined)
+	app, err := platform.New(startup, platform.Config{DatabaseURL: os.Getenv("DATABASE_URL"), FirebaseProjectID: os.Getenv("FIREBASE_PROJECT_ID"), FirebaseAPIKey: os.Getenv("FIREBASE_API_KEY"), FirebaseAppID: os.Getenv("FIREBASE_APP_ID"), AdminEmail: os.Getenv("ADMIN_EMAIL"), AdminPassword: os.Getenv("ADMIN_PASSWORD"), AppURL: os.Getenv("APP_URL"), SiteURL: os.Getenv("SITE_URL"), StripeKey: os.Getenv("STRIPE_SECRET_KEY"), StripeWebhookSecret: os.Getenv("STRIPE_WEBHOOK_SECRET"), StripePortalConfig: os.Getenv("STRIPE_PORTAL_CONFIG"), StripePrices: map[string]string{"launch": os.Getenv("STRIPE_PRICE_LAUNCH"), "scale": os.Getenv("STRIPE_PRICE_SCALE")}, ResendKey: os.Getenv("RESEND_API_KEY"), MailFrom: os.Getenv("MAIL_FROM"), MailReplyTo: os.Getenv("MAIL_REPLY_TO")}, combined)
 	cancelStartup()
 	if err != nil {
 		slog.Error("platform startup failed", "error", err)

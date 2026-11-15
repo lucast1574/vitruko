@@ -208,6 +208,8 @@ func stripeResponse(v any) *http.Response {
 }
 func TestStripeReconciliationAndCancellation(t *testing.T) {
 	p := databasePlatform(t)
+	p.config.ResendKey = "re_test"
+	p.config.MailFrom = "Service <hola@example.invalid>"
 	u, _ := signupTest(t, p)
 	_, err := p.db.Exec("UPDATE plans SET stripe_price_id='price_test_scale' WHERE id='scale'")
 	if err != nil {
@@ -245,6 +247,17 @@ func TestStripeReconciliationAndCancellation(t *testing.T) {
 	if fresh.PlanID != "free" {
 		t.Fatal("cancellation kept paid access")
 	}
+	for _, kind := range []struct {
+		version int
+		name    string
+	}{{1, "active"}, {2, "canceled"}} {
+		var count int
+		id := digest(fmt.Sprintf("subscription/%s/%d/%s", u.ID, kind.version, kind.name))
+		if err = p.db.QueryRow("SELECT count(*) FROM notification_outbox WHERE id=$1", id).Scan(&count); err != nil || count != 1 {
+			t.Fatal("missing lifecycle email", kind, err, count)
+		}
+	}
+
 }
 
 func TestPasswordResetTokenSingleUse(t *testing.T) {

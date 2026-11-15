@@ -1,3 +1,4 @@
+import AccountNotifications from "./AccountNotifications";
 import { appURL } from "../client";
 import React from "react";
 import Inspector from "./Inspector";
@@ -172,6 +173,7 @@ export default function Docs({
           datos antes de guardarlos como definitivos.
         </p>
       </section>
+      <AccountNotifications />
     </div>
   );
 }

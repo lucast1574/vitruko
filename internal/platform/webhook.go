@@ -73,7 +73,7 @@ func (p *Platform) webhook(w http.ResponseWriter, r *http.Request) {
 		problem(w, 503, "storage", "Reintenta el evento.")
 		return
 	}
-	if err = p.reconcile(r.Context(), userID, event.ID); err != nil {
+	if err = p.reconcileEvent(r.Context(), userID, event.ID, event.Type, event.Data.Object); err != nil {
 		problem(w, 503, "billing", "No se pudo procesar el evento. Reintenta.")
 		return
 	}
@@ -81,6 +81,9 @@ func (p *Platform) webhook(w http.ResponseWriter, r *http.Request) {
 }
 
 func (p *Platform) reconcile(ctx context.Context, userID, eventID string) error {
+	return p.reconcileEvent(ctx, userID, eventID, "", nil)
+}
+func (p *Platform) reconcileEvent(ctx context.Context, userID, eventID, eventType string, eventObject map[string]any) error {
 	tx, err := p.db.BeginTx(ctx, nil)
 	if err != nil {
 		return err
@@ -102,6 +105,11 @@ func (p *Platform) reconcile(ctx context.Context, userID, eventID string) error 
 		if exists {
 			return nil
 		}
+	}
+	var oldCancel bool
+	var version int64
+	if err = tx.QueryRowContext(ctx, "SELECT cancel_at_period_end,notification_version FROM users WHERE id=$1", userID).Scan(&oldCancel, &version); err != nil {
+		return err
 	}
 	result, err := p.stripe(ctx, "GET", "/subscriptions?"+url.Values{"customer": {u.CustomerID.String}, "status": {"all"}, "limit": {"30"}}.Encode(), nil, "")
 	if err != nil {
@@ -151,6 +159,11 @@ func (p *Platform) reconcile(ctx context.Context, userID, eventID string) error 
 			chosenPlan = planID
 		}
 	}
+	notifications := []string{}
+	newPlan := "Free"
+	newEnd := int64(0)
+	newCancel := false
+	wasPaid := u.SubscriptionStatus == "active" || u.SubscriptionStatus == "trialing"
 	if chosen != nil {
 		status := text(chosen["status"])
 		planID := chosenPlan
@@ -173,15 +186,54 @@ func (p *Platform) reconcile(ctx context.Context, userID, eventID string) error 
 		if end > start {
 			b = time.Unix(end, 0)
 		}
+		isPaid := status == "active" || status == "trialing"
+		newCancel, _ = chosen["cancel_at_period_end"].(bool)
+		newPlan = strings.ToUpper(chosenPlan[:1]) + chosenPlan[1:]
+		newEnd = end
+		switch {
+		case isPaid && (!wasPaid || u.SubscriptionID.String != text(chosen["id"])):
+			notifications = append(notifications, "active")
+		case isPaid && wasPaid && u.PlanID != planID:
+			notifications = append(notifications, "changed")
+		case status == "past_due" && u.SubscriptionStatus != "past_due":
+			notifications = append(notifications, "payment_failed")
+		case status == "canceled" && u.SubscriptionID.Valid && u.SubscriptionStatus != "canceled":
+			notifications = append(notifications, "canceled")
+		case isPaid && wasPaid && eventType == "invoice.paid" && text(eventObject["billing_reason"]) == "subscription_cycle" && invoiceSubscription(eventObject) == text(chosen["id"]):
+			notifications = append(notifications, "renewed")
+		}
+		if isPaid && newCancel && !oldCancel {
+			notifications = append(notifications, "cancel_scheduled")
+		}
+		if isPaid && !newCancel && oldCancel {
+			notifications = append(notifications, "cancel_reverted")
+		}
 		_, err = tx.ExecContext(ctx, "UPDATE users SET plan_id=$1,subscription_id=$2,subscription_status=$3,billing_start=$4,billing_end=$5 WHERE id=$6", planID, text(chosen["id"]), status, a, b, userID)
 		if err == nil && (status == "active" || status == "trialing" || status == "canceled") {
 			_, err = tx.ExecContext(ctx, "DELETE FROM checkout_attempts WHERE user_id=$1", userID)
 		}
 	} else if u.SubscriptionID.Valid {
+		if u.SubscriptionStatus != "none" && u.SubscriptionStatus != "canceled" {
+			notifications = append(notifications, "canceled")
+		}
 		_, err = tx.ExecContext(ctx, "UPDATE users SET plan_id='free',subscription_id=NULL,subscription_status='none',billing_start=NULL,billing_end=NULL WHERE id=$1", userID)
 	}
 	if err != nil {
 		return err
+	}
+	if _, err = tx.ExecContext(ctx, "UPDATE users SET cancel_at_period_end=$1 WHERE id=$2", newCancel, userID); err != nil {
+		return err
+	}
+	if len(notifications) > 0 {
+		version++
+		for _, kind := range notifications {
+			if err = p.subscriptionMail(ctx, tx, u, version, kind, newPlan, newEnd); err != nil {
+				return err
+			}
+		}
+		if _, err = tx.ExecContext(ctx, "UPDATE users SET notification_version=$1 WHERE id=$2", version, userID); err != nil {
+			return err
+		}
 	}
 	if eventID != "" {
 		_, err = tx.ExecContext(ctx, "INSERT INTO stripe_events(id) VALUES($1) ON CONFLICT DO NOTHING", eventID)
@@ -190,4 +242,12 @@ func (p *Platform) reconcile(ctx context.Context, userID, eventID string) error 
 		return err
 	}
 	return tx.Commit()
+}
+
+// Stripe supports both legacy and current invoice subscription references.
+func invoiceSubscription(invoice map[string]any) string {
+	if id := text(invoice["subscription"]); id != "" {
+		return id
+	}
+	return text(object(object(invoice["parent"])["subscription_details"])["subscription"])
 }

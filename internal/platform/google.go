@@ -169,6 +169,7 @@ func (p *Platform) linkGoogle(ctx context.Context, identity googleClaims) (User,
 	if _, err = tx.ExecContext(ctx, "SELECT pg_advisory_xact_lock(hashtextextended($1,0))", identity.Subject); err != nil {
 		return User{}, err
 	}
+	created := false
 	var id, linked string
 	err = tx.QueryRowContext(ctx, "SELECT id,COALESCE(firebase_uid,'') FROM users WHERE firebase_uid=$1 FOR UPDATE", identity.Subject).Scan(&id, &linked)
 	if err == sql.ErrNoRows {
@@ -182,7 +183,15 @@ func (p *Platform) linkGoogle(ctx context.Context, identity googleClaims) (User,
 		if len(name) > 100 {
 			name = string([]rune(name)[:min(50, len([]rune(name)))])
 		}
-		_, err = tx.ExecContext(ctx, "INSERT INTO users(id,email,name,password_hash,firebase_uid,email_verified) VALUES($1,$2,$3,$4,$5,true) ON CONFLICT(email) DO NOTHING", token("usr_"), identity.Email, name, "!google-only", identity.Subject)
+		result, insertErr := tx.ExecContext(ctx, "INSERT INTO users(id,email,name,password_hash,firebase_uid,email_verified) VALUES($1,$2,$3,$4,$5,true) ON CONFLICT(email) DO NOTHING", token("usr_"), identity.Email, name, "!google-only", identity.Subject)
+		err = insertErr
+		if err == nil {
+			n, e := result.RowsAffected()
+			if e != nil {
+				return User{}, e
+			}
+			created = n == 1
+		}
 		if err == nil {
 			err = tx.QueryRowContext(ctx, "SELECT id,COALESCE(firebase_uid,'') FROM users WHERE email=$1 FOR UPDATE", identity.Email).Scan(&id, &linked)
 		}
@@ -211,6 +220,11 @@ func (p *Platform) linkGoogle(ctx context.Context, identity googleClaims) (User,
 	u.AvatarURL = googlePicture(identity.Picture)
 	if _, err = tx.ExecContext(ctx, "UPDATE users SET avatar_url=$1 WHERE id=$2", u.AvatarURL, id); err != nil {
 		return User{}, err
+	}
+	if created {
+		if err = p.newUserMail(ctx, tx, u.ID, u.Email, u.Name); err != nil {
+			return User{}, err
+		}
 	}
 	if err = tx.Commit(); err != nil {
 		return User{}, err

@@ -1,0 +1,21 @@
+vitruko.
+
+{{.Label}}
+
+
+{{.Title}}
+
+Hola, {{.Name}}.
+
+{{.Body}}
+
+{{.Detail}}
+
+{{.Action}} {{.ActionURL}}
+
+----------------------------------------
+
+{{.Footnote}}
+
+Vitruko · De un enlace a una ficha de producto
+vitruko.lat https://vitruko.lat

@@ -1,10 +1,7 @@
 package platform
 
 import (
-	"bytes"
 	"database/sql"
-	"encoding/json"
-	"fmt"
 	"golang.org/x/crypto/bcrypt"
 	"net"
 	"net/http"
@@ -60,9 +57,23 @@ func (p *Platform) signup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	id := token("usr_")
-	_, err = p.db.ExecContext(r.Context(), "INSERT INTO users(id,email,name,password_hash) VALUES($1,$2,$3,$4)", id, in.Email, in.Name, string(hash))
+	tx, err := p.db.BeginTx(r.Context(), nil)
+	if err != nil {
+		problem(w, 503, "storage", "Intenta más tarde.")
+		return
+	}
+	defer tx.Rollback()
+	_, err = tx.ExecContext(r.Context(), "INSERT INTO users(id,email,name,password_hash) VALUES($1,$2,$3,$4)", id, in.Email, in.Name, string(hash))
 	if err != nil {
 		problem(w, 409, "account_exists", "No se pudo crear la cuenta. Si ya tienes una, inicia sesión o recupera tu contraseña.")
+		return
+	}
+	if err = p.newUserMail(r.Context(), tx, id, in.Email, in.Name); err != nil {
+		problem(w, 503, "storage", "No se pudo crear la cuenta. Intenta más tarde.")
+		return
+	}
+	if err = tx.Commit(); err != nil {
+		problem(w, 503, "storage", "No se pudo crear la cuenta. Intenta más tarde.")
 		return
 	}
 	if p.startSession(w, r, id) != nil {
@@ -181,21 +192,6 @@ func (p *Platform) forgot(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	reply(w, 200, map[string]string{"message": "Si existe una cuenta con ese correo, recibirás un enlace para cambiar la contraseña."})
-}
-func (p *Platform) sendReset(r *http.Request, email, raw string) error {
-	data, _ := json.Marshal(map[string]any{"from": p.config.MailFrom, "to": []string{email}, "subject": "Restablece tu contraseña de Vitruko", "text": "Abre este enlace para definir tu contraseña de Vitruko. Caduca en 30 minutos:\n\n" + p.config.AppURL + "/reset?token=" + raw + "\n\nSi no lo solicitaste, ignora este correo."})
-	req, _ := http.NewRequestWithContext(r.Context(), "POST", "https://api.resend.com/emails", bytes.NewReader(data))
-	req.Header.Set("Authorization", "Bearer "+p.config.ResendKey)
-	req.Header.Set("Content-Type", "application/json")
-	res, err := p.mailHTTP.Do(req)
-	if err != nil {
-		return err
-	}
-	defer res.Body.Close()
-	if res.StatusCode >= 300 {
-		return fmt.Errorf("mail status %d", res.StatusCode)
-	}
-	return nil
 }
 func (p *Platform) reset(w http.ResponseWriter, r *http.Request) {
 	var in struct{ Token, Password string }

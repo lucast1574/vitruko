@@ -5,9 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host 127.0.0.1",
-    "build": "vite build && node scripts/prerender.mjs",
+    "build": "node scripts/render-emails.mjs && vite build && node scripts/prerender.mjs",
     "preview": "vite preview --host 127.0.0.1",
-    "test": "node --test src/*.test.js"
+    "test": "node --test src/*.test.js",
+    "emails:build": "node scripts/render-emails.mjs"
   },
   "dependencies": {
     "@firebase/app": "^0.16.5",
@@ -21,6 +22,7 @@
   "devDependencies": {
     "@resvg/resvg-js": "^2.6.2",
     "jsdom": "^31.0.0",
+    "react-email": "6.11.13",
     "vite": "8.3.6"
   }
 }

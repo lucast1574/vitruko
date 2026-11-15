@@ -53,3 +53,27 @@ sociales, JSON-LD, sitemap y `llms.txt`. El panel, autenticación y operaciones
 de API permanecen fuera del índice. El subdominio API dirige la portada y
 documentación al sitio canónico. Las URLs de OAuth son
 `https://vitruko.lat/__/auth/handler`, con helpers servidos bajo el mismo dominio.
+
+
+## Correos transaccionales
+
+Las plantillas se generan con React Email (`npm --prefix web run emails:build`) en
+HTML y texto, y se incorporan al ejecutable Go. El runtime no necesita Node.
+`RESEND_API_KEY`, `MAIL_FROM` y `MAIL_REPLY_TO` se configuran solo en despliegue; verificar dominio y
+DNS en Resend antes de publicar. No utilizar el remitente de otro producto.
+
+Nuevos registros por contraseña o Google reciben bienvenida una vez. Todos los
+administradores activos reciben un aviso del registro; vincular o iniciar sesión
+en una cuenta existente no repite la bienvenida. El arranque no envía bienvenidas
+a cuentas anteriores. Suscripciones: alta/recuperación, cambio de plan, cancelación
+programada, cancelación revertida, finalización, renovación y pago pendiente.
+Los avisos se basan en el estado reconciliado de Stripe y no alteran cobros.
+
+La cola notification_outbox se escribe en la misma transacción que el evento y el
+worker reclama filas con lease y SKIP LOCKED. Usa Idempotency-Key de Resend,
+reintentos acotados a 23 horas/12 intentos y no registra contenido ni destinatarios.
+El contenido entregado se elimina; los registros expiran a 30 días. Fallos permanentes
+quedan en failed_at/last_status para revisión. Corregir credenciales antes de reencolar;
+no reenviar manualmente un mensaje ambiguo fuera de la ventana de idempotencia.
+Los correos de recuperación usan la misma plantilla, con enlaces de 30 minutos, sin
+persistir tokens de recuperación en la cola.
