@@ -21,3 +21,12 @@ test("personal MCP instructions embed the supplied credential and preserve appro
     "Bearer test-private-key",
   );
 });
+
+test("Codex configuration uses real line breaks", () => {
+  const prompt = installPrompt("codex", {
+    url: "https://api.vitruko.lat/mcp",
+    key: "test",
+  });
+  assert.ok(prompt.includes("\nurl = "));
+  assert.ok(!prompt.includes("\\n"));
+});

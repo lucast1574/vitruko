@@ -14,7 +14,7 @@ export function McpPromo() {
           precio y disponibilidad cuando la tienda los publica. Tu asistente
           conoce el contrato, los campos faltantes y los límites de extracción.
         </p>
-        <a className="button" href={`${appURL}/app/mcp`}>
+        <a className="button" href={`${appURL}/app?connect=codex`}>
           Conectar mi asistente <ArrowRight size={18} />
         </a>
         <a className="text-link" href="/mcp">
@@ -27,7 +27,7 @@ export function McpPromo() {
           Integra Vitruko en mi catálogo: al pegar un enlace de producto,
           completa la ficha y permite editar los campos que falten.
         </blockquote>
-        <p>Una copia desde tu panel. Tu cuenta ya va conectada.</p>
+        <p>Una copia desde tu Resumen. Tu cuenta ya va conectada.</p>
       </div>
     </section>
   );
@@ -49,7 +49,7 @@ export default function McpPage() {
           precio y disponibilidad cuando la tienda los publica. Tu asistente
           conoce el contrato, los campos faltantes y los límites de extracción.
         </p>
-        <a className="button" href={`${appURL}/app/mcp`}>
+        <a className="button" href={`${appURL}/app?connect=codex`}>
           Conectar desde mi panel <ArrowRight size={18} />
         </a>
         <section>
@@ -58,7 +58,7 @@ export default function McpPage() {
             <li>
               Inicia sesión en{" "}
               <a href="https://app.vitruko.lat">app.vitruko.lat</a> y abre
-              Conectar IA.
+              Conectar mi asistente en el Resumen.
             </li>
             <li>
               Elige tu asistente y copia las instrucciones. Tu API key privada

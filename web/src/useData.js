@@ -19,7 +19,10 @@ export function useData(path) {
       return value;
     } catch (e) {
       if (request === sequence.current && e.name !== "AbortError") {
-        if (e.status === 401) location.assign("/login");
+        if (e.status === 401) {
+          const connect = new URLSearchParams(location.search).get("connect");
+          location.assign("/login" + (["codex", "claude"].includes(connect) ? "?connect=" + connect : ""));
+        }
         setError(e.message);
         // Callers must not announce success when refreshing the saved data fails.
         throw e;

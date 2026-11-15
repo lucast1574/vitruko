@@ -38,7 +38,13 @@ func Handler() http.Handler {
 			return
 		}
 		if verification != "" && status == 200 && file != "shell.html" {
-			data = []byte(strings.Replace(string(data), "</head>", `<meta name="google-site-verification" content="`+html.EscapeString(verification)+`"></head>`, 1))
+			tags := ""
+			for _, value := range strings.Split(verification, ",") {
+				if value = strings.TrimSpace(value); value != "" {
+					tags += `<meta name="google-site-verification" content="` + html.EscapeString(value) + `">`
+				}
+			}
+			data = []byte(strings.Replace(string(data), "</head>", tags+"</head>", 1))
 		}
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		w.Header().Set("Cache-Control", "no-cache")
@@ -55,6 +61,11 @@ func Handler() http.Handler {
 		}
 		host := strings.ToLower(strings.Split(r.Host, ":")[0])
 		urlPath := path.Clean(r.URL.Path)
+		if urlPath == "/app/mcp" {
+			w.Header().Set("X-Robots-Tag", "noindex, nofollow")
+			http.Redirect(w, r, "/app?connect=codex", http.StatusTemporaryRedirect)
+			return
+		}
 		if urlPath == "/index.html" {
 			urlPath = "/"
 		}

@@ -73,3 +73,18 @@ func TestPublicPagesArePrerenderedAndPrivatePagesNoindex(t *testing.T) {
 		t.Fatal("soft 404")
 	}
 }
+
+func TestVerificationPreservesMultipleOwnersAndLegacyMCPEntry(t *testing.T) {
+	t.Setenv("GOOGLE_SITE_VERIFICATION", "existing-owner,new-owner")
+	h := Handler()
+	w := httptest.NewRecorder()
+	h.ServeHTTP(w, httptest.NewRequest("GET", "/", nil))
+	if !strings.Contains(w.Body.String(), `content="existing-owner"`) || !strings.Contains(w.Body.String(), `content="new-owner"`) {
+		t.Fatal("owner verification lost")
+	}
+	w = httptest.NewRecorder()
+	h.ServeHTTP(w, httptest.NewRequest("GET", "/app/mcp", nil))
+	if w.Code != 307 || w.Header().Get("Location") != "/app?connect=codex" {
+		t.Fatal("legacy entry did not return to summary")
+	}
+}

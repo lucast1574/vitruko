@@ -1,100 +1,3 @@
-.mcp-eyebrow {
-  display: block;
-  color: var(--muted);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  margin-bottom: 8px;
-}
-.mcp-status {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  flex-wrap: wrap;
-  margin: 24px 0;
-}
-.mcp-status p {
-  color: var(--muted);
-  font-size: 14px;
-  margin: 0;
-}
-.mcp-clients {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
-  margin: 24px 0;
-}
-.mcp-client {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 24px;
-}
-.mcp-client h2 {
-  font-size: 24px;
-  margin: 8px 0;
-}
-.mcp-client p {
-  color: var(--muted);
-  margin: 0 0 24px;
-}
-.mcp-client .button {
-  min-height: 44px;
-}
-.mcp-capabilities {
-  padding: 32px 0;
-}
-.mcp-capabilities h2,
-.mcp-security h2 {
-  font-size: 22px;
-  margin: 0 0 12px;
-}
-.mcp-capabilities > p {
-  max-width: 760px;
-  color: var(--muted);
-}
-.mcp-example {
-  background: var(--raised);
-  border-radius: var(--radius);
-  padding: 24px;
-  margin: 24px 0;
-}
-.mcp-example > span {
-  color: var(--muted);
-  font-size: 12px;
-}
-.mcp-example blockquote {
-  margin: 8px 0 0;
-  font-size: 18px;
-  max-width: 680px;
-}
-.mcp-capabilities ol {
-  padding-left: 24px;
-  line-height: 2;
-}
-.mcp-security {
-  display: flex;
-  gap: 16px;
-  border-top: 1px solid var(--border);
-  padding: 24px 0;
-}
-.mcp-security > svg {
-  flex: none;
-  margin-top: 4px;
-}
-.mcp-security p {
-  color: var(--muted);
-  max-width: 760px;
-  font-size: 14px;
-}
-.mcp-fallback {
-  display: grid;
-  gap: 12px;
-}
-.mcp-fallback textarea {
-  width: 100%;
-  font: 12px/1.6 monospace;
-}
 .mcp-promo {
   margin: 64px auto;
   padding: 40px;
@@ -175,3 +78,245 @@
     padding: 20px;
   }
 }
+
+.mcp-banner {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
+  margin: 0 0 32px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+.mcp-banner-copy {
+  flex: 1;
+  min-width: 0;
+}
+.mcp-banner h2 {
+  font-size: 16px;
+  font-weight: 500;
+  margin: 0;
+}
+.mcp-banner p {
+  font-size: 14px;
+  color: var(--muted);
+  margin: 4px 0 0;
+}
+.mcp-banner > .button {
+  flex: none;
+  min-height: 44px;
+}
+.mcp-marks {
+  display: flex;
+  flex: none;
+}
+.mcp-marks > span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--raised);
+}
+.mcp-marks > span + span {
+  margin-left: -8px;
+  background: var(--surface);
+}
+.mcp-marks svg {
+  width: 20px;
+  height: 20px;
+}
+.mcp-connected {
+  display: block;
+  font-size: 12px;
+  color: var(--good);
+  margin-bottom: 4px;
+}
+.mcp-tabs {
+  display: flex;
+  gap: 24px;
+  border-bottom: 1px solid var(--border);
+  margin: 8px 0 20px;
+}
+.mcp-tabs button {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  background: transparent;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  padding: 12px 0;
+  color: var(--muted);
+  min-height: 44px;
+}
+.mcp-tabs button[aria-selected="true"] {
+  color: var(--ink);
+  border-bottom-color: var(--accent);
+}
+.mcp-tabs button:focus-visible {
+  color: var(--accent);
+  background: var(--raised);
+}
+.mcp-tabs svg {
+  width: 16px;
+  height: 16px;
+}
+.mcp-flow {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  align-items: center;
+  background: var(--raised);
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 24px;
+}
+.mcp-node {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+}
+.mcp-node > svg {
+  width: 26px;
+  height: 26px;
+}
+.mcp-track {
+  position: relative;
+  width: 64px;
+  height: 1px;
+  background: var(--border);
+}
+.mcp-track > span {
+  position: absolute;
+  left: 0;
+  top: -2px;
+  width: 12px;
+  height: 5px;
+  border-radius: 4px;
+  background: var(--accent);
+  animation: mcp-transfer 2.8s ease-in-out infinite;
+}
+.mcp-steps {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 20px;
+}
+.mcp-steps li {
+  display: flex;
+  gap: 12px;
+}
+.mcp-steps li > span {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--raised);
+  font-size: 12px;
+}
+.mcp-steps strong {
+  font-size: 14px;
+  font-weight: 500;
+}
+.mcp-steps p {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--muted);
+  margin: 4px 0 0;
+}
+.mcp-copy-action {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+.mcp-copy-action > .button {
+  width: 100%;
+  min-height: 44px;
+}
+.mcp-copy-action > p {
+  font-size: 13px;
+  line-height: 1.5;
+}
+.mcp-fallback {
+  display: grid;
+  gap: 8px;
+  margin-top: 16px;
+}
+.mcp-fallback textarea {
+  width: 100%;
+  font: 12px/1.5 monospace;
+}
+.mcp-example {
+  background: var(--raised);
+  border-radius: var(--radius);
+  padding: 24px;
+}
+.mcp-example blockquote {
+  margin: 8px 0 0;
+  font-size: 18px;
+}
+.mcp-eyebrow {
+  display: block;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+.mcp-connect-dialog {
+  max-width: 100%;
+}
+@keyframes mcp-transfer {
+  0%,
+  15% {
+    transform: translateX(0);
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+  75% {
+    opacity: 1;
+  }
+  90%,
+  100% {
+    transform: translateX(52px);
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mcp-track > span {
+    animation: none;
+    left: 26px;
+  }
+}
+@media (max-width: 640px) {
+  .mcp-banner {
+    flex-wrap: wrap;
+  }
+  .mcp-banner-copy {
+    flex-basis: calc(100% - 80px);
+  }
+  .mcp-banner > .button {
+    width: 100%;
+  }
+  .mcp-tabs {
+    gap: 20px;
+  }
+  .mcp-steps {
+    gap: 16px;
+  }
+}
+
+.modal:has(.mcp-connect-dialog){max-width:512px;max-height:calc(100dvh - 32px);overflow-y:auto}

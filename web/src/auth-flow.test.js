@@ -6,5 +6,12 @@ test("Both login methods preserve a paid plan through signup and login", () => {
 });
 test("Unknown, internal and external destinations cannot redirect authentication", () => {
  for(const search of ["?plan=internal","?plan=https://evil.example","?next=https://evil.example","?plan=free"]) assert.equal(authDestination("login",search),"/app");
- assert.equal(authDestination("signup",""),"/app/keys");
+ assert.equal(authDestination("signup",""),"/app");
+});
+
+test("MCP entry returns to the summary and preserves the selected assistant",()=>{
+ for(const mode of ["login","signup"]){
+  for(const client of ["codex","claude"]) assert.equal(authDestination(mode,"?connect="+client),"/app?connect="+client);
+  assert.equal(authDestination(mode,"?connect=https://evil.example"),"/app");
+ }
 });
