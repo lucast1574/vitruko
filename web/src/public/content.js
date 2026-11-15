@@ -1,5 +1,11 @@
 export const siteOrigin = "https://vitruko.lat";
 export const pages = {
+  "/mcp": {
+    title: "MCP de Vitruko para Claude Code y Codex",
+    description:
+      "Conecta Vitruko a Claude Code y Codex desde tu panel. Copia la configuración con tu API key incluida y usa tu asistente con el contrato y los permisos de tu cuenta.",
+    navTitle: "MCP para IA",
+  },
   "/": {
     title: "Vitruko | API de extracción de productos y enlaces",
     description:

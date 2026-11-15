@@ -60,6 +60,9 @@ func (p *Platform) private(fn http.HandlerFunc, admin bool) http.HandlerFunc {
 func (p *Platform) Handler() http.Handler {
 	mux := http.NewServeMux()
 	authProxy := newFirebaseAuthProxy(p.config.FirebaseProjectID)
+	mcpHTTP := p.mcpHandler()
+	mux.HandleFunc("GET /console/mcp", p.private(p.mcpStatus, false))
+	mux.HandleFunc("POST /console/mcp/prepare", p.private(p.prepareMCP, false))
 	mux.HandleFunc("POST /console/signup", p.signup)
 	mux.HandleFunc("POST /console/login", p.login)
 	mux.HandleFunc("GET /console/auth/providers", p.providers)
@@ -76,6 +79,10 @@ func (p *Platform) Handler() http.Handler {
 	}
 	mux.HandleFunc("POST /stripe/webhook", p.webhook)
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/mcp" && strings.Split(r.Host, ":")[0] == "api.vitruko.lat" {
+			mcpHTTP.ServeHTTP(w, r)
+			return
+		}
 		// Firebase helpers must retain their upstream headers and execute on our auth domain.
 		if strings.HasPrefix(r.URL.Path, "/__/auth/") {
 			authProxy.ServeHTTP(w, r)

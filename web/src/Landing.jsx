@@ -1,3 +1,4 @@
+import { McpPromo } from "./public/McpPage";
 import React, { useEffect, useRef, useState } from "react";
 import { ArrowRight, ArrowUpRight, Check } from "lucide-react";
 import { gsap } from "gsap";
@@ -138,6 +139,7 @@ export default function Landing() {
           <a href="#producto">Producto</a>
           <a href="#planes">Planes</a>
           <a href="/documentacion">Documentación</a>
+          <a href="/mcp">Conectar IA</a>
         </nav>
         <a href={`${appURL}/login`}>
           Mi cuenta <ArrowUpRight size={17} />
@@ -363,6 +365,7 @@ export default function Landing() {
             </div>
           </div>
         </section>
+        <McpPromo />
         <section className="v-plans v-reveal" id="planes">
           <h2>Crece por peticiones.</h2>
           <p>Tres planes. Sin créditos que descifrar.</p>
@@ -454,6 +457,7 @@ export default function Landing() {
           <Logo />
           <nav>
             <a href="/documentacion">Documentación</a>
+          <a href="/mcp">Conectar IA</a>
             <a href={`${appURL}/login`}>Mi cuenta</a>
             <a href="/legal">Condiciones y privacidad</a>
             <a href="mailto:hola@nexode.app">Contacto</a>

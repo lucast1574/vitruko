@@ -23,3 +23,33 @@ Database tests require TEST_DATABASE_URL pointing at a disposable database named
 Landing https://vitruko.lat · Console https://app.vitruko.lat · API https://api.vitruko.lat
 
 Six prerendered public pages, canonical URLs, Open Graph images, structured data, sitemap and robots. Private console/auth routes use noindex; missing pages return 404. The animated brand entrance runs once per tab, respects reduced motion and never gates the rendered content.
+
+## MCP para Claude Code y Codex
+
+Producción: [sitio](https://vitruko.lat), [panel](https://app.vitruko.lat),
+[API](https://api.vitruko.lat), [documentación](https://vitruko.lat/documentacion),
+[guía MCP](https://vitruko.lat/mcp) y [OpenAPI](https://api.vitruko.lat/openapi.json).
+
+Abre **Conectar IA** en el panel y copia las instrucciones para tu asistente.
+La API key privada se prepara automáticamente y se reutiliza entre asistentes.
+Se guarda cifrada con AES-256-GCM y AAD por usuario; el hash se valida como el
+resto de API keys. Se puede revocar desde API keys; copiar no revive claves revocadas
+sin la acción explícita de renovar. La conexión cuenta en el límite de 10 claves.
+
+Endpoint Streamable HTTP: `https://api.vitruko.lat/mcp`, con
+`Authorization: Bearer TU_API_KEY`. El SDK oficial implementa el protocolo.
+`vitruko_me` consulta cuenta, permisos y cuota sin gastar peticiones.
+`vitruko_documentation` devuelve el OpenAPI actual. Las herramientas de datos
+reutilizan las validaciones, permisos, protección de proveedores y cuotas REST.
+No hay herramientas para modificar suscripciones ni efectuar pagos.
+
+Configurar `MCP_KEY_ENCRYPTION_KEY` como 32 bytes hexadecimales aleatorios por
+entorno. Mantenerla estable entre despliegues y protegerla como secreto de producción.
+No reemplazarla sin migrar los secretos existentes. Una conexión MCP sin esta
+variable falla de forma cerrada; el resto de la plataforma continúa funcionando.
+
+SEO: páginas públicas prerenderizadas, canonical al dominio principal, metadatos
+sociales, JSON-LD, sitemap y `llms.txt`. El panel, autenticación y operaciones
+de API permanecen fuera del índice. El subdominio API dirige la portada y
+documentación al sitio canónico. Las URLs de OAuth son
+`https://vitruko.lat/__/auth/handler`, con helpers servidos bajo el mismo dominio.

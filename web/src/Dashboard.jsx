@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import {
   LayoutDashboard,
+  Cable,
   KeyRound,
   ChartNoAxesCombined,
   CreditCard,
@@ -18,6 +19,7 @@ import Avatar from "./Avatar";
 import { useData } from "./useData";
 import { Overview, Usage } from "./pages/Usage";
 import Keys from "./pages/Keys";
+import Mcp from "./pages/Mcp";
 import Billing from "./pages/Billing";
 import Profile from "./pages/Profile";
 import Docs from "./pages/Docs";
@@ -27,6 +29,7 @@ import { siteURL } from "./client";
 const links = [
   ["", "Resumen", LayoutDashboard],
   ["keys", "API keys", KeyRound],
+  ["mcp", "Conectar IA", Cable],
   ["inspector", "Extraer producto", ScanLine],
   ["usage", "Consumo", ChartNoAxesCombined],
   ["billing", "Plan y facturación", CreditCard],
@@ -121,7 +124,9 @@ export default function Dashboard() {
           </a>
         </header>
         <main className="app-sheet">
-          {page === "keys" ? (
+          {page === "mcp" ? (
+            <Mcp />
+          ) : page === "keys" ? (
             <Keys />
           ) : page === "inspector" ? (
             <Inspector />

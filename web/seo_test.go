@@ -10,7 +10,7 @@ import (
 
 func TestPublicPagesArePrerenderedAndPrivatePagesNoindex(t *testing.T) {
 	h := Handler()
-	for _, path := range []string{"/", "/documentacion", "/api-extraer-productos", "/vista-previa-enlaces", "/shopify-vtex", "/legal"} {
+	for _, path := range []string{"/", "/mcp", "/documentacion", "/api-extraer-productos", "/vista-previa-enlaces", "/shopify-vtex", "/legal"} {
 		r := httptest.NewRequest("GET", "https://vitruko.lat"+path, nil)
 		w := httptest.NewRecorder()
 		h.ServeHTTP(w, r)

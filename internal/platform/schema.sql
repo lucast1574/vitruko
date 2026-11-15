@@ -63,3 +63,10 @@ CREATE TABLE IF NOT EXISTS audit_events (
 );
 
 ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar_url text NOT NULL DEFAULT '';
+
+-- Dedicated MCP credentials: encrypted with a deployment key, revocable as API keys.
+CREATE TABLE IF NOT EXISTS mcp_connections (
+ user_id text PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+ key_id text NOT NULL UNIQUE REFERENCES api_keys(id) ON DELETE CASCADE,
+ encrypted_secret text NOT NULL
+);

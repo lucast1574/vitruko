@@ -67,7 +67,7 @@ func Handler() http.Handler {
 			return
 		}
 		if file, ok := pages[urlPath]; ok {
-			if host == "api.vitruko.lat" || host == "app.vitruko.lat" {
+			if host == "api.vitruko.lat" || host == "app.vitruko.lat" || host == "www.vitruko.lat" {
 				http.Redirect(w, r, "https://vitruko.lat"+urlPath, http.StatusPermanentRedirect)
 				return
 			}
@@ -82,7 +82,7 @@ func Handler() http.Handler {
 			serveHTML(w, r, file, 200)
 			return
 		}
-		if urlPath == "/sitemap.xml" && (host == "api.vitruko.lat" || host == "app.vitruko.lat") {
+		if urlPath == "/sitemap.xml" && (host == "api.vitruko.lat" || host == "app.vitruko.lat" || host == "www.vitruko.lat") {
 			http.Redirect(w, r, "https://vitruko.lat/sitemap.xml", http.StatusPermanentRedirect)
 			return
 		}

@@ -3,7 +3,12 @@
   "info": {
     "title": "Vitruko API",
     "version": "1.1.0",
-    "description": "Extrae fichas públicas de productos con galería, marca, precio, disponibilidad y calidad de los datos cuando la fuente los publica. No ejecuta JavaScript ni supera bloqueos de las tiendas."
+    "description": "Extrae fichas públicas de productos con galería, marca, precio, disponibilidad y calidad de los datos cuando la fuente los publica. No ejecuta JavaScript ni supera bloqueos de las tiendas.",
+    "contact": {
+      "name": "Vitruko",
+      "url": "https://vitruko.lat"
+    },
+    "termsOfService": "https://vitruko.lat/legal"
   },
   "servers": [
     {
@@ -236,5 +241,16 @@
         "description": "También se admite Authorization: Bearer. Nunca envíes la clave en la URL."
       }
     }
+  },
+  "externalDocs": {
+    "description": "Documentación e integración MCP",
+    "url": "https://vitruko.lat/documentacion"
+  },
+  "x-mcp": {
+    "url": "https://api.vitruko.lat/mcp",
+    "documentation": "https://vitruko.lat/mcp",
+    "authentication": "Authorization: Bearer <private API key>",
+    "accountTool": "vitruko_me",
+    "documentationTool": "vitruko_documentation"
   }
 }
