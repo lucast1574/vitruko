@@ -111,6 +111,10 @@ func TestMCPProvisioningIsolationRevocationAndQuota(t *testing.T) {
 	if me.Code != 200 || !strings.Contains(me.Body.String(), "monthlyLimit") {
 		t.Fatal("identity", me.Code, me.Body)
 	}
+	statusResult, statusData := callHTTP(p, "GET", "/console/mcp", "", cookie, "")
+	if statusResult.Code != 200 || statusData["connected"] != true {
+		t.Fatal("authenticated use was not reflected in connection status", statusData)
+	}
 	var used int
 	p.db.QueryRow("SELECT COALESCE(sum(used),0) FROM usage_buckets WHERE user_id=$1", user.ID).Scan(&used)
 	if used != 0 {

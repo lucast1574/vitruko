@@ -178,6 +178,11 @@ func (p *Platform) mcpHandler() http.Handler {
 			}
 			return
 		}
+		// Record authenticated use without charging a data request.
+		if _, err := p.db.ExecContext(r.Context(), `UPDATE api_keys SET last_used_at=now() WHERE token_hash=$1 AND (last_used_at IS NULL OR last_used_at<now()-interval '1 minute')`, digest(raw)); err != nil {
+			problem(w, 503, "storage", "No se pudo verificar la conexión.")
+			return
+		}
 		ctx, cancel := context.WithTimeout(r.Context(), 25*time.Second)
 		defer cancel()
 		r = r.WithContext(ctx)
