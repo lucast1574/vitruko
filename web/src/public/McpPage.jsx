@@ -2,13 +2,24 @@ import React from "react";
 import { ArrowRight, Cable } from "lucide-react";
 import { appURL } from "../client";
 import { PublicHeader, PublicFooter } from "./PublicPage";
+import { ClaudeIcon, OpenAIIcon } from "../assistant-icons";
 import "../mcp.css";
+
+export function AssistantLinks() {
+  return <div className="mcp-assistants" aria-label="Conecta tu asistente con MCP">
+    <span>Conecta tu IA</span>
+    <a href={`${appURL}/app?connect=claude`}><ClaudeIcon />Claude Code</a>
+    <a href={`${appURL}/app?connect=codex`}><OpenAIIcon />Codex · OpenAI</a>
+  </div>;
+}
+
 export function McpPromo() {
   return (
     <section className="mcp-promo" id="mcp">
       <div>
-        <span className="mcp-eyebrow">MCP · CLAUDE CODE Y CODEX</span>
+        <span className="mcp-eyebrow">MCP · TU CUENTA YA CONECTADA</span>
         <h2>De un enlace a tu catálogo, con tu IA.</h2>
+        <AssistantLinks />
         <p>
           Convierte enlaces públicos de productos en fichas con imágenes, marca,
           precio y disponibilidad cuando la tienda los publica. Tu asistente

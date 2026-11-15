@@ -1,4 +1,4 @@
-import { McpPromo } from "./public/McpPage";
+import { McpPromo, AssistantLinks } from "./public/McpPage";
 import React, { useEffect, useRef, useState } from "react";
 import { ArrowRight, ArrowUpRight, Check } from "lucide-react";
 import { gsap } from "gsap";
@@ -168,6 +168,7 @@ export default function Landing() {
               Sin tarjeta para empezar.
             </span>
           </div>
+          <AssistantLinks />
           <div className="v-showcase" data-ui>
             <div className="shop-window">
               <div className="window-top">
