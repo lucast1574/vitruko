@@ -63,22 +63,13 @@ export default function Landing() {
       const arrival = createBrandArrival(root.current);
       let entrance;
       const context = gsap.context(() => {
-        entrance = gsap
-          .timeline({ delay: arrival ? 1.7 : 0.1 })
-          .from(
-            ".v-hero h1, .v-hero .hero-lead, .v-hero .hero-cta",
-            { y: 36, opacity: 0, stagger: 0.12, duration: 0.9 },
-            0,
-          )
-          .from(
-            ".v-showcase",
-            {
-              clipPath: "inset(0 100% 0 0)",
-              duration: 1.1,
-              ease: "power3.inOut",
-            },
-            0.05,
-          );
+        // Keep the heading, actions and product visible throughout the entrance.
+        entrance = gsap.from(".hero-intro", {
+          y: 12,
+          duration: 0.45,
+          delay: arrival ? 1.4 : 0,
+          ease: "power2.out",
+        });
         gsap.utils
           .toArray(".v-reveal")
           .forEach((el) =>
@@ -97,22 +88,13 @@ export default function Landing() {
           repeat: -1,
           ease: "sine.inOut",
         });
-        gsap.to(".data-sheet", {
-          y: -32,
-          ease: "none",
-          scrollTrigger: {
-            trigger: ".v-showcase",
-            start: "top top",
-            end: "bottom top",
-            scrub: 1,
-          },
-        });
+
       }, root);
       const dismiss = () => {
         if (arrival && arrival.progress() < 1) {
           arrival.progress(1);
           entrance?.progress(1);
-          gsap.set(".v-hero h1, .hero-lead, .hero-cta, .v-showcase", {
+          gsap.set(".hero-intro", {
             clearProps: "all",
           });
         }
@@ -147,28 +129,30 @@ export default function Landing() {
       </header>
       <main>
         <section className="v-hero">
-          <div className="hero-title">
-            <h1>
-              De enlace
-              <br />a producto.
-            </h1>
-            <p className="hero-lead">
-              La API que convierte una página de venta en datos que tu
-              aplicación entiende. Nombre, galería, marca, precio y disponibilidad
-              publicados por la tienda, en una petición.
-            </p>
+          <div className="hero-intro">
+            <div className="hero-title">
+              <h1>
+                De enlace
+                <br />a producto.
+              </h1>
+              <p className="hero-lead">
+                Convierte enlaces de tiendas en fichas listas para tu app.
+                Nombre, imágenes, marca, precio y disponibilidad, cuando la tienda
+                los publica.
+              </p>
+            </div>
+            <div className="hero-cta">
+              <a className="button" href={`${appURL}/signup`}>
+                Crea tu API key <ArrowRight size={18} />
+              </a>
+              <span>
+                1.000 peticiones al mes, gratis.
+                <br />
+                Sin tarjeta para empezar.
+              </span>
+            </div>
+            <AssistantLinks />
           </div>
-          <div className="hero-cta">
-            <a className="button" href={`${appURL}/signup`}>
-              Crea tu API key <ArrowRight size={18} />
-            </a>
-            <span>
-              1.000 peticiones al mes, gratis.
-              <br />
-              Sin tarjeta para empezar.
-            </span>
-          </div>
-          <AssistantLinks />
           <div className="v-showcase" data-ui>
             <div className="shop-window">
               <div className="window-top">
